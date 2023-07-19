@@ -819,6 +819,13 @@ namespace {
             if (v >= beta)
                 return nullValue;
         }
+
+        // When we are in all node and the opponent poses a threat to us,
+        // we reduce the depth by one.
+        else if (eval - 100 >= beta
+                 && !cutNode
+                 && depth > 5)
+                 depth--;
     }
 
     // Step 10. If the position doesn't have a ttMove, decrease depth by 2
