@@ -822,7 +822,7 @@ namespace {
 
         // When we are in all node and the opponent poses a threat to us,
         // we reduce the depth by one.
-        else if (eval - 100 >= beta
+        else if (eval - 150 >= beta
                  && !cutNode
                  && depth > 5)
                  depth--;
