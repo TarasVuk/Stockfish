@@ -824,7 +824,8 @@ namespace {
         // we reduce the depth by one.
         else if (eval - 150 >= beta
                  && !cutNode
-                 && depth > 5)
+                 && depth > 5
+                 && depth < 15)
                  depth--;
     }
 
