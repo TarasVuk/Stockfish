@@ -26,6 +26,9 @@
 
 namespace Stockfish {
 
+int x1 = 59, x2 = 72830, x3 = 2330, x4 = 2644, x5 = 10;
+TUNE(x1, x2, x3, x4, x5);
+
 TimeManagement Time; // Our global time management object
 
 
@@ -66,7 +69,7 @@ void TimeManagement::init(Search::LimitsType& limits, Color us, int ply) {
   }
 
   // Maximum move horizon of 50 moves
-  int mtg = limits.movestogo ? std::min(limits.movestogo, 50) : 50;
+  int mtg = limits.movestogo ? std::min(limits.movestogo, 50) : std::min(x1 + (x2 - x3 * ply) / (x4 + (10 + ply) * ply), 50);
 
   // Make sure timeLeft is > 0 since we may use it as a divisor
   TimePoint timeLeft =  std::max(TimePoint(1),
