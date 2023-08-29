@@ -161,7 +161,7 @@ void MovePicker::score() {
                        :                                                0 )
                        :                                                0 ;
         
-          m.value += rank_of(pos.side_to_move() ? flip_rank(to) : to);
+          m.value += rank_of(pos.side_to_move() ? flip_rank(to) : to) * (pos.game_ply() < 40);
       }
       
       else // Type == EVASIONS
