@@ -160,6 +160,8 @@ void MovePicker::score() {
                        : pt != PAWN ?    bool(to & threatenedByPawn)  * 15000
                        :                                                0 )
                        :                                                0 ;
+        
+          m.value += rank_of(pos.side_to_move() ? flip_rank(to) : to);
       }
       
       else // Type == EVASIONS
