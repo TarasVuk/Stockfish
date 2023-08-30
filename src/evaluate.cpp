@@ -162,6 +162,8 @@ Value Eval::evaluate(const Position& pos) {
   v = (  nnue     * (915 + npm + 9 * pos.count<PAWN>())
        + optimism * (154 + npm +     pos.count<PAWN>())) / 1024;
 
+  v += (pos.can_castle(WHITE_OO) + pos.can_castle(WHITE_OOO) + pos.can_castle(BLACK_OO) + pos.can_castle(BLACK_OOO)) * (stm ? -5 : 5);
+
   // Damp down the evaluation linearly when shuffling
   v = v * (200 - pos.rule50_count()) / 214;
 
