@@ -794,7 +794,9 @@ namespace {
 
         pos.do_null_move(st);
 
-        Value nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
+        Value nullValue = (!cutNode && ss->staticEval > beta) ? -qsearch<NonPV>(pos, ss+1, -beta, -beta+1) : beta;
+        if (nullValue >= beta)
+            nullValue = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth-R, !cutNode);
 
         pos.undo_null_move();
 
