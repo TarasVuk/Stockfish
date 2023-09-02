@@ -1149,8 +1149,8 @@ moves_loop: // When in check, search starts here
           && pos.has_repeated())
           r += 2;
 
-      // Increase reduction on non-improving nodes
-      if (!improving)
+      // Increase reduction on non-improving cut nodes
+      if (!improving && cutNode)
           r++;
 
       // Increase reduction if next ply has a lot of fail high (~5 Elo)
