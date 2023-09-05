@@ -25,6 +25,7 @@
 
 #include "bitboard.h"
 #include "position.h"
+#include "thread.h"
 
 namespace Stockfish {
 
@@ -165,6 +166,8 @@ void MovePicker::score() {
                        : pt != PAWN ?    bool(to & threatenedByPawn)  * 15000
                        :                                                0 )
                        :                                                0 ;
+
+          m.value += (pos.this_thread()->nodes & 7) - 3;
       }
 
       else // Type == EVASIONS
