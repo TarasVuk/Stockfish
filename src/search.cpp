@@ -927,6 +927,8 @@ moves_loop: // When in check, search starts here
     value = bestValue;
     moveCountPruning = singularQuietLMR = false;
 
+    int failHighCount = 0;
+
     // Indicate PvNodes that will probably fail low if the node was searched
     // at a depth equal to or greater than the current depth, and the result of this search was a fail low.
     bool likelyFailLow =    PvNode
@@ -1247,6 +1249,13 @@ moves_loop: // When in check, search starts here
       if (Threads.stop.load(std::memory_order_relaxed))
           return VALUE_ZERO;
 
+      if (   failHighCount > 0
+          && value >= beta)
+          {
+              failHighCount++;
+              break;
+          }
+
       if (rootNode)
       {
           RootMove& rm = *std::find(thisThread->rootMoves.begin(),
@@ -1308,7 +1317,13 @@ moves_loop: // When in check, search starts here
               {
                   ss->cutoffCnt += 1 + !ttMove;
                   assert(value >= beta); // Fail high
-                  break;
+                  if (!rootNode)
+                      break;
+                  else
+                  {
+                      failHighCount++;
+                      alpha = beta - 1;
+                  }
               }
               else
               {
@@ -1387,7 +1402,7 @@ moves_loop: // When in check, search starts here
 
     assert(bestValue > -VALUE_INFINITE && bestValue < VALUE_INFINITE);
 
-    return bestValue;
+    return std::min(bestValue, (failHighCount == 1) ? (beta - 1) : VALUE_INFINITE);
   }
 
 
