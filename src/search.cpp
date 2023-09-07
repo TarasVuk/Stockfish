@@ -1317,7 +1317,8 @@ moves_loop: // When in check, search starts here
               {
                   ss->cutoffCnt += 1 + !ttMove;
                   assert(value >= beta); // Fail high
-                  if (!rootNode)
+                  if (   !rootNode
+                      ||  value > beta + PawnValue)
                       break;
                   else
                   {
