@@ -30,6 +30,15 @@ namespace Stockfish {
 
 namespace {
 
+  int MvvLvaScore[6][6] = { {    0,     0,     0,     0,     0,     0},
+                            { 1456,  1456,  1456,  1456,  1456,  1456},
+                            { 5467,  5467,  5467,  5467,  5467,  5467},
+                            { 5775,  5775,  5775,  5775,  5775,  5775},
+                            { 8932,  8932,  8932,  8932,  8932,  8932},
+                            {17766, 17766, 17766, 17766, 17766, 17766}};
+  
+  TUNE(SetRange(0, 35532), MvvLvaScore);
+
   enum Stages {
     MAIN_TT, CAPTURE_INIT, GOOD_CAPTURE, REFUTATION, QUIET_INIT, QUIET, BAD_CAPTURE,
     EVASION_TT, EVASION_INIT, EVASION,
@@ -127,7 +136,7 @@ void MovePicker::score() {
 
   for (auto& m : *this)
       if constexpr (Type == CAPTURES)
-          m.value =  (7 * int(PieceValue[pos.piece_on(to_sq(m))]) - int(PieceValue[pos.piece_on(from_sq(m))])
+          m.value =  (MvvLvaScore[type_of(pos.piece_on(to_sq(m)))][type_of(pos.moved_piece(m))-1]
                    + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))]) / 16;
 
       else if constexpr (Type == QUIETS)
