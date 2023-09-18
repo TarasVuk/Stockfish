@@ -828,6 +828,8 @@ namespace {
             if (v >= beta)
                 return nullValue;
         }
+       else if (nullValue < VALUE_TB_LOSS_IN_MAX_PLY)
+            depth++;
     }
 
     // Step 10. If the position doesn't have a ttMove, decrease depth by 2
