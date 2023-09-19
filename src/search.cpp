@@ -889,6 +889,8 @@ namespace {
 
                 if (value >= probCutBeta)
                 {
+                    update_all_stats(pos, ss, move, value, probCutBeta, prevSq,
+                         quietsSearched, quietCount, capturesSearched, captureCount, depth - 3);
                     // Save ProbCut data into transposition table
                     tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, depth - 3, move, ss->staticEval);
                     return value;
