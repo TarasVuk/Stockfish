@@ -31,7 +31,7 @@ namespace Stockfish {
 namespace {
 
   enum Stages {
-    MAIN_TT, CAPTURE_INIT, GOOD_CAPTURE, REFUTATION, QUIET_INIT, QUIET, BAD_CAPTURE,
+    MAIN_TT, CAPTURE_KILLER, CAPTURE_INIT, GOOD_CAPTURE, REFUTATION, QUIET_INIT, QUIET, BAD_CAPTURE,
     EVASION_TT, EVASION_INIT, EVASION,
     PROBCUT_TT, PROBCUT_INIT, PROBCUT,
     QSEARCH_TT, QCAPTURE_INIT, QCAPTURE, QCHECK_INIT, QCHECK
@@ -65,10 +65,11 @@ namespace {
 MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHistory* mh,
                                                              const CapturePieceToHistory* cph,
                                                              const PieceToHistory** ch,
+                                                             Move ck,
                                                              Move cm,
                                                              const Move* killers)
            : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch),
-             ttMove(ttm), refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}}, depth(d)
+             ttMove(ttm), captureKiller(ck), refutations{{killers[0], 0}, {killers[1], 0}, {cm, 0}}, depth(d)
 {
   assert(d > 0);
 
@@ -189,7 +190,7 @@ Move MovePicker::select(Pred filter) {
       if constexpr (T == Best)
           std::swap(*cur, *std::max_element(cur, endMoves));
 
-      if (*cur != ttMove && filter())
+      if (*cur != ttMove && *cur != captureKiller && filter())
           return *cur++;
 
       cur++;
@@ -211,6 +212,18 @@ top:
   case PROBCUT_TT:
       ++stage;
       return ttMove;
+
+  case CAPTURE_KILLER:
+      if (   captureKiller != MOVE_NONE
+          && pos.capture_stage(captureKiller)
+          && pos.pseudo_legal(captureKiller))
+          {
+              ++stage;
+              return captureKiller;
+          }
+
+      ++stage;
+      [[fallthrough]];
 
   case CAPTURE_INIT:
   case PROBCUT_INIT:
