@@ -31,7 +31,7 @@ namespace Stockfish {
 namespace {
 
   enum Stages {
-    MAIN_TT, CAPTURE_KILLER, CAPTURE_INIT, GOOD_CAPTURE, REFUTATION, QUIET_INIT, QUIET, BAD_CAPTURE,
+    MAIN_TT, CAPTURE_INIT, GOOD_CAPTURE, REFUTATION, QUIET_INIT, QUIET, BAD_CAPTURE,
     EVASION_TT, EVASION_INIT, EVASION,
     PROBCUT_TT, PROBCUT_INIT, PROBCUT,
     QSEARCH_TT, QCAPTURE_INIT, QCAPTURE, QCHECK_INIT, QCHECK
@@ -85,7 +85,8 @@ MovePicker::MovePicker(const Position& p, Move ttm, Depth d, const ButterflyHist
            : pos(p), mainHistory(mh), captureHistory(cph), continuationHistory(ch), ttMove(ttm), recaptureSquare(rs), depth(d)
 {
   assert(d <= 0);
-
+  
+  captureKiller = MOVE_NONE;
   stage = (pos.checkers() ? EVASION_TT : QSEARCH_TT) +
           !(   ttm
             && pos.pseudo_legal(ttm));
@@ -98,6 +99,7 @@ MovePicker::MovePicker(const Position& p, Move ttm, Value th, const CapturePiece
 {
   assert(!pos.checkers());
 
+  captureKiller = MOVE_NONE;
   stage = PROBCUT_TT + !(ttm && pos.capture_stage(ttm)
                              && pos.pseudo_legal(ttm)
                              && pos.see_ge(ttm, threshold));
@@ -129,7 +131,7 @@ void MovePicker::score() {
   for (auto& m : *this)
       if constexpr (Type == CAPTURES)
           m.value =  (7 * int(PieceValue[pos.piece_on(to_sq(m))])
-                   + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))]) / 16;
+                   + (*captureHistory)[pos.moved_piece(m)][to_sq(m)][type_of(pos.piece_on(to_sq(m)))]) / 16 + 100000 * (m.move == captureKiller);
 
       else if constexpr (Type == QUIETS)
       {
@@ -190,7 +192,7 @@ Move MovePicker::select(Pred filter) {
       if constexpr (T == Best)
           std::swap(*cur, *std::max_element(cur, endMoves));
 
-      if (*cur != ttMove && *cur != captureKiller && filter())
+      if (*cur != ttMove && filter())
           return *cur++;
 
       cur++;
@@ -212,18 +214,6 @@ top:
   case PROBCUT_TT:
       ++stage;
       return ttMove;
-
-  case CAPTURE_KILLER:
-      if (   captureKiller != MOVE_NONE
-          && pos.capture_stage(captureKiller)
-          && pos.pseudo_legal(captureKiller))
-          {
-              ++stage;
-              return captureKiller;
-          }
-
-      ++stage;
-      [[fallthrough]];
 
   case CAPTURE_INIT:
   case PROBCUT_INIT:
