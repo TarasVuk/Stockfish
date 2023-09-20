@@ -766,8 +766,9 @@ namespace {
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
     // return a fail low.
     if (   !PvNode
+        &&  depth <= 3
         &&  eval < alpha - 456 - 252 * depth * depth
-        &&  depth <= 6)
+        &&  eval < 24923)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
