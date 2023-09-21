@@ -766,9 +766,8 @@ namespace {
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
     // return a fail low.
     if (   !PvNode
-        &&  depth <= 3
-        &&  eval < alpha - 456 - 252 * depth * depth
-        &&  eval < 24923)
+        &&  depth < 9
+        &&  eval < alpha - 456 - 252 * depth * depth)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
@@ -860,7 +859,7 @@ namespace {
         // there and in further interactions with transposition table cutoff depth is set to depth - 3
         // because probCut search has depth set to depth - 4 but we also do a move before it
         // So effective depth is equal to depth - 3
-        && !(   tte->depth() >= depth - 3
+        && !(   tte->depth() > depth - 3
              && ttValue != VALUE_NONE
              && ttValue < probCutBeta))
     {
