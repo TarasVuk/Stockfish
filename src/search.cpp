@@ -68,6 +68,9 @@ using namespace Search;
 
 namespace {
 
+    int xx1 = 500, xx2 = 500;
+    TUNE(xx1, xx2);
+
   // Different node types, used as a template parameter
   enum NodeType { NonPV, PV, Root };
 
@@ -766,8 +769,8 @@ namespace {
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
     // return a fail low.
     if (   !PvNode
-        &&  depth < 9
-        &&  eval < alpha - 456 - 252 * depth * depth)
+        &&  eval < alpha - xx1 - xx2 * depth
+        &&  depth <= 6)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
         if (value < alpha)
