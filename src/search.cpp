@@ -863,6 +863,8 @@ namespace {
     {
         assert(probCutBeta < VALUE_INFINITE);
 
+        int c = 0;
+
         MovePicker mp(pos, ttMove, probCutBeta - ss->staticEval, &captureHistory);
 
         while ((move = mp.next_move()) != MOVE_NONE)
@@ -879,11 +881,11 @@ namespace {
                 pos.do_move(move, st);
 
                 // Perform a preliminary qsearch to verify that the move holds
-                value = -qsearch<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1);
+                value = -qsearch<NonPV>(pos, ss+1, -beta, -beta+1);
 
                 // If the qsearch held, perform the regular search
                 if (value >= probCutBeta)
-                    value = -search<NonPV>(pos, ss+1, -probCutBeta, -probCutBeta+1, depth - 4, !cutNode);
+                    value = -search<NonPV>(pos, ss+1, -beta, -beta+1, depth - 4, !cutNode);
 
                 pos.undo_move(move);
 
@@ -893,6 +895,9 @@ namespace {
                     tte->save(posKey, value_to_tt(value, ss->ply), ss->ttPv, BOUND_LOWER, depth - 3, move, ss->staticEval);
                     return value;
                 }
+
+                if (value >= beta && ++c >= 2)
+                    return value;
             }
 
         Eval::NNUE::hint_common_parent_position(pos);
