@@ -778,6 +778,7 @@ namespace {
         &&  depth < 9
         &&  eval - futility_margin(depth, cutNode && !ss->ttHit, improving) - (ss-1)->statScore / 306 >= beta
         &&  eval >= beta
+        &&  beta > VALUE_TB_LOSS_IN_MAX_PLY
         &&  eval < 24923) // smaller than TB wins
         return eval;
 
