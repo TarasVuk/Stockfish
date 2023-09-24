@@ -1324,8 +1324,6 @@ moves_loop: // When in check, search starts here
                   alpha = value; // Update alpha! Always alpha < beta
               }
           }
-          else if (rootNode)
-              break;
       }
 
 
@@ -1338,6 +1336,11 @@ moves_loop: // When in check, search starts here
           else if (!capture && quietCount < 64)
               quietsSearched[quietCount++] = move;
       }
+
+      if (   rootNode 
+          && bestValue + PawnValue / moveCount < alpha
+          && moveCount > 1)
+          break;
     }
 
     // The following condition would detect a stop only after move loop has been
