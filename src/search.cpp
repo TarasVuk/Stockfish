@@ -68,6 +68,25 @@ using namespace Search;
 
 namespace {
 
+   int xx1 = 100, xx2 = 100, xx3 = 100, xx4 = 1500;
+   TUNE(SetRange(-1000, 1000), xx1, SetRange(-1000, 1000), xx2, SetRange(-1000, 1000), xx3, SetRange(0, 3000), xx4);
+   int xx5 = 100, xx6 = 100, xx7 = 100, xx8 = 1500;
+   TUNE(SetRange(-1000, 1000), xx5, SetRange(-1000, 1000), xx6, SetRange(-1000, 1000), xx7, SetRange(0, 3000), xx8);
+   int xx9 = 100, xx10 = 100, xx11 = 100, xx12 = 1500;
+   TUNE(SetRange(-1000, 1000), xx9, SetRange(-1000, 1000), xx10, SetRange(-1000, 1000), xx11, SetRange(0, 3000), xx12);
+   int xx13 = 100, xx14 = 100, xx15 = 100, xx16 = 1500;
+   TUNE(SetRange(-1000, 1000), xx13, SetRange(-1000, 1000), xx14, SetRange(-1000, 1000), xx15, SetRange(0, 3000), xx16);
+   int xx17 = 100, xx18 = 100, xx19 = 100, xx20 = 1500;
+   TUNE(SetRange(-1000, 1000), xx17, SetRange(-1000, 1000), xx18, SetRange(-1000, 1000), xx19, SetRange(0, 3000), xx20);
+   int xx21 = 100, xx22 = 100, xx23 = 100, xx24 = 1500;
+   TUNE(SetRange(-1000, 1000), xx21, SetRange(-1000, 1000), xx22, SetRange(-1000, 1000), xx23, SetRange(0, 3000), xx24);
+   int xx25 = 100, xx26 = 100, xx27 = 100, xx28 = 1500;
+   TUNE(SetRange(-1000, 1000), xx25, SetRange(-1000, 1000), xx26, SetRange(-1000, 1000), xx27, SetRange(0, 3000), xx28);
+   int xx29 = 100, xx30 = 100, xx31 = 100, xx32 = 1500;
+   TUNE(SetRange(-1000, 1000), xx29, SetRange(-1000, 1000), xx30, SetRange(-1000, 1000), xx31, SetRange(0, 3000), xx32);
+   int xx33 = 100, xx34 = 100, xx35 = 100, xx36 = 1500;
+   TUNE(SetRange(-1000, 1000), xx33, SetRange(-1000, 1000), xx34, SetRange(-1000, 1000), xx35, SetRange(0, 3000), xx36);
+
   // Different node types, used as a template parameter
   enum NodeType { NonPV, PV, Root };
 
@@ -88,11 +107,6 @@ namespace {
   constexpr int futility_move_count(bool improving, Depth depth) {
     return improving ? (3 + depth * depth)
                      : (3 + depth * depth) / 2;
-  }
-
-  // History and stats update bonus, based on depth
-  int stat_bonus(Depth d) {
-    return std::min(336 * d - 547, 1561);
   }
 
   // Add a small random component to draw evaluations to avoid 3-fold blindness
@@ -636,16 +650,16 @@ namespace {
             {
                 // Bonus for a quiet ttMove that fails high (~2 Elo)
                 if (!ttCapture)
-                    update_quiet_stats(pos, ss, ttMove, stat_bonus(depth));
+                    update_quiet_stats(pos, ss, ttMove, std::min(xx1 + xx2 * depth + xx3 * depth * depth, xx4));
 
                 // Extra penalty for early quiet moves of the previous ply (~0 Elo on STC, ~2 Elo on LTC)
                 if (prevSq != SQ_NONE && (ss-1)->moveCount <= 2 && !priorCapture)
-                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth + 1));
+                    update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, -std::min(xx5 + xx6 * depth + xx7 * depth * depth, xx8));
             }
             // Penalty for a quiet ttMove that fails low (~1 Elo)
             else if (!ttCapture)
             {
-                int penalty = -stat_bonus(depth);
+                int penalty = -std::min(xx9 + xx10 * depth + xx11 * depth * depth, xx12);
                 thisThread->mainHistory[us][from_to(ttMove)] << penalty;
                 update_continuation_histories(ss, pos.moved_piece(ttMove), to_sq(ttMove), penalty);
             }
@@ -1208,8 +1222,8 @@ moves_loop: // When in check, search starts here
               if (newDepth > d)
                   value = -search<NonPV>(pos, ss+1, -(alpha+1), -alpha, newDepth, !cutNode);
 
-              int bonus = value <= alpha ? -stat_bonus(newDepth)
-                        : value >= beta  ?  stat_bonus(newDepth)
+              int bonus = value <= alpha ? -std::min(xx13 + xx14 * depth + xx15 * depth * depth, xx16)
+                        : value >= beta  ?  std::min(xx17 + xx18 * depth + xx19 * depth * depth, xx20)
                                          :  0;
 
               update_continuation_histories(ss, movedPiece, to_sq(move), bonus);
@@ -1367,8 +1381,8 @@ moves_loop: // When in check, search starts here
     else if (!priorCapture && prevSq != SQ_NONE)
     {
         int bonus = (depth > 5) + (PvNode || cutNode) + (bestValue < alpha - 800) + ((ss-1)->moveCount > 12);
-        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, stat_bonus(depth) * bonus);
-        thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << stat_bonus(depth) * bonus / 2;
+        update_continuation_histories(ss-1, pos.piece_on(prevSq), prevSq, std::min(xx21 + xx22 * depth + xx23 * depth * depth, xx24) * bonus);
+        thisThread->mainHistory[~us][from_to((ss-1)->currentMove)] << std::min(xx25 + xx26 * depth + xx27 * depth * depth, xx28) * bonus / 2;
     }
 
     if (PvNode)
@@ -1716,12 +1730,12 @@ moves_loop: // When in check, search starts here
     Piece moved_piece = pos.moved_piece(bestMove);
     PieceType captured;
 
-    int quietMoveBonus = stat_bonus(depth + 1);
+    int quietMoveBonus = std::min(xx29 + xx30 * depth + xx31 * depth * depth, xx32);
 
     if (!pos.capture_stage(bestMove))
     {
         int bestMoveBonus = bestValue > beta + 145 ? quietMoveBonus  // larger bonus
-                                            : stat_bonus(depth);     // smaller bonus
+                                            : std::min(xx33 + xx34 * depth + xx35 * depth * depth, xx36);     // smaller bonus
 
         // Increase stats for the best move in case it was a quiet move
         update_quiet_stats(pos, ss, bestMove, bestMoveBonus);
