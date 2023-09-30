@@ -1546,7 +1546,7 @@ moves_loop: // When in check, search starts here
                 &&  futilityBase > VALUE_TB_LOSS_IN_MAX_PLY
                 &&  type_of(move) != PROMOTION)
             {
-                if (moveCount > 2)
+                if (moveCount > ((depth == 0) ? 3 : 2))
                     continue;
 
                 futilityValue = futilityBase + PieceValue[pos.piece_on(to_sq(move))];
