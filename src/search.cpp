@@ -1638,8 +1638,13 @@ moves_loop: // When in check, search starts here
     if (ss->inCheck && bestValue == -VALUE_INFINITE)
     {
         assert(!MoveList<LEGAL>(pos).size());
-
         return mated_in(ss->ply); // Plies to mate from the root
+    }
+
+    if (bestMove && pos.capture_stage(bestMove))
+    {
+        PieceType captured = type_of(pos.piece_on(to_sq(bestMove)));
+        thisThread->captureHistory[pos.moved_piece(bestMove)][to_sq(bestMove)][captured] << 10;
     }
 
     // Save gathered info in transposition table
