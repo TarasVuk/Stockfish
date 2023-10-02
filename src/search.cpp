@@ -68,9 +68,6 @@ using namespace Search;
 
 namespace {
 
-  int xx1 = 0;
-  TUNE(SetRange(-10000, 10000), xx1);
-
   // Different node types, used as a template parameter
   enum NodeType { NonPV, PV, Root };
 
@@ -784,7 +781,7 @@ namespace {
         &&  eval >= beta
         &&  eval < 24923 // smaller than TB wins
         && !(   ttMove
-             && thisThread->mainHistory[us][from_to(ttMove)] < xx1))
+             && thisThread->mainHistory[us][from_to(ttMove)] < 103))
         return eval;
 
     // Step 9. Null move search with verification search (~35 Elo)
