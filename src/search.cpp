@@ -911,7 +911,7 @@ moves_loop: // When in check, search starts here
         && ttValue >= probCutBeta
         && abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY
         && abs(beta) < VALUE_TB_WIN_IN_MAX_PLY)
-        return probCutBeta;
+        return ttValue - 413;
 
     const PieceToHistory* contHist[] = { (ss-1)->continuationHistory, (ss-2)->continuationHistory,
                                           nullptr                   , (ss-4)->continuationHistory,
