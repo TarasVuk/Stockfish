@@ -1185,6 +1185,7 @@ moves_loop: // When in check, search starts here
       // been searched. In general, we would like to reduce them, but there are many
       // cases where we extend a son if it has good chances to be "interesting".
       if (    depth >= 2
+          &&  value > VALUE_TB_LOSS_IN_MAX_PLY
           &&  moveCount > 1 + (PvNode && ss->ply <= 1)
           && (   !ss->ttPv
               || !capture
