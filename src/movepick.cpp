@@ -138,12 +138,13 @@ void MovePicker::score() {
           Square    to   = to_sq(m);
 
           // histories
-          m.value =  2005 * (*mainHistory)[pos.side_to_move()][from_to(m)] / 1024;
-          m.value += 1899 * (*continuationHistory[0])[pc][to] / 1024;
-          m.value += 1029 * (*continuationHistory[1])[pc][to] / 1024;
-          m.value +=  259 * (*continuationHistory[2])[pc][to] / 1024;
-          m.value += 1085 * (*continuationHistory[3])[pc][to] / 1024;
-          m.value += 1014 * (*continuationHistory[5])[pc][to] / 1024;
+          m.value =  2005 * (*mainHistory)[pos.side_to_move()][from_to(m)];
+          m.value += 1899 * (*continuationHistory[0])[pc][to];
+          m.value += 1029 * (*continuationHistory[1])[pc][to];
+          m.value +=  259 * (*continuationHistory[2])[pc][to];
+          m.value += 1085 * (*continuationHistory[3])[pc][to];
+          m.value += 1014 * (*continuationHistory[5])[pc][to];
+          m.value /= 1024;
 
           // bonus for checks
           m.value += bool(pos.check_squares(pt) & to) * 16384;
