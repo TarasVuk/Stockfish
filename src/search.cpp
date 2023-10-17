@@ -1565,7 +1565,7 @@ moves_loop: // When in check, search starts here
 
                 // If static eval is much lower than alpha and move is not winning material
                 // we can prune this move
-                if (futilityBase <= alpha && !pos.see_ge(move, (alpha - futilityBase) / 4))
+                if (futilityBase <= alpha && !pos.see_ge(move, (alpha - futilityBase) / 8))
                 {
                     bestValue = std::max(bestValue, futilityBase);
                     continue;
