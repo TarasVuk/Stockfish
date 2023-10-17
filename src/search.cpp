@@ -1525,6 +1525,7 @@ moves_loop: // When in check, search starts here
                                       prevSq);
 
     int quietCheckEvasions = 0;
+    value = bestValue;
 
     // Step 5. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
@@ -1611,7 +1612,13 @@ moves_loop: // When in check, search starts here
 
         // Step 7. Make and search the move
         pos.do_move(move, st, givesCheck);
-        value = -qsearch<nodeType>(pos, ss+1, -beta, -alpha, depth - 1);
+
+        if (!PvNode || moveCount > 1)
+            value = -qsearch<NonPV>(pos, ss+1, -(alpha+1), -alpha, depth - 1);
+
+        if (PvNode && (moveCount == 1 || value > alpha))
+            value = -qsearch<PV>(pos, ss+1, -beta, -alpha, depth - 1);
+
         pos.undo_move(move);
 
         assert(value > -VALUE_INFINITE && value < VALUE_INFINITE);
