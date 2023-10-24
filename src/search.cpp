@@ -772,14 +772,14 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     // The depth condition is important for mate finding.
     if (!ss->ttPv && depth < 9
         && eval - futility_margin(depth, cutNode && !ss->ttHit, improving)
-               - (ss - 1)->statScore / 321
+               - (ss - 1)->statScore / 317
              >= beta
         && eval >= beta && eval < 29462  // smaller than TB wins
         && !(!ttCapture && ttMove))
         return eval;
 
     // Step 9. Null move search with verification search (~35 Elo)
-    if (!PvNode && (ss - 1)->currentMove != MOVE_NULL && (ss - 1)->statScore < 17257 && eval >= beta
+    if (!PvNode && (ss - 1)->currentMove != MOVE_NULL && (ss - 1)->statScore < 16570 && eval >= beta
         && eval >= ss->staticEval && ss->staticEval >= beta - 24 * depth + 281 && !excludedMove
         && pos.non_pawn_material(us) && ss->ply >= thisThread->nmpMinPly
         && beta > VALUE_TB_LOSS_IN_MAX_PLY)
@@ -1132,13 +1132,17 @@ moves_loop:  // When in check, search starts here
         else if (move == ttMove)
             r--;
 
-        ss->statScore = 2 * thisThread->mainHistory[us][from_to(move)]
-                      + (*contHist[0])[movedPiece][to_sq(move)]
-                      + (*contHist[1])[movedPiece][to_sq(move)]
-                      + (*contHist[3])[movedPiece][to_sq(move)] - 3848;
+        if (capture)
+            ss->statScore = thisThread->captureHistory[movedPiece][to_sq(move)][type_of(pos.piece_on(to_sq(bestMove)))] + 16;
+        else
+            ss->statScore =  2 * thisThread->mainHistory[us][from_to(move)]
+                         + (*contHist[0])[movedPiece][to_sq(move)]
+                         + (*contHist[1])[movedPiece][to_sq(move)]
+                         + (*contHist[3])[movedPiece][to_sq(move)]
+                         - 4183;
 
         // Decrease/increase reduction for moves with a good/bad history (~25 Elo)
-        r -= ss->statScore / (10216 + 3855 * (depth > 5 && depth < 23));
+        r -= ss->statScore / (10064 + 3868 * (depth > 5 && depth < 23));
 
         // Step 17. Late moves reduction / extension (LMR, ~117 Elo)
         // We use various heuristics for the sons of a node after the first son has
