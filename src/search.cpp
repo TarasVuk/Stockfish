@@ -815,7 +815,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
             thisThread->nmpMinPly = 0;
 
             if (v >= beta)
-                return nullValue;
+                return v;
         }
     }
 
