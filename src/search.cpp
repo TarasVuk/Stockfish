@@ -1013,7 +1013,7 @@ moves_loop:  // When in check, search starts here
 
         // Step 15. Extensions (~100 Elo)
         // We take care to not overdo to avoid search getting stuck.
-        if (ss->ply < thisThread->rootDepth * 2)
+        if (ss->ply < thisThread->rootDepth * 2 && move == ttMove)
         {
             // Singular extension search (~94 Elo). If all moves but one fail low on a
             // search of (alpha-s, beta-s), and just one fails high on (alpha, beta),
@@ -1024,7 +1024,7 @@ moves_loop:  // When in check, search starts here
             // scaling. Their values are optimized to time controls of 180+1.8 and longer
             // so changing them requires tests at this type of time controls.
             // Recursive singular search is avoided.
-            if (!rootNode && move == ttMove && !excludedMove
+            if (!rootNode && !excludedMove
                 && depth >= 4 - (thisThread->completedDepth > 24) + 2 * (PvNode && tte->is_pv())
                 && abs(ttValue) < VALUE_TB_WIN_IN_MAX_PLY && (tte->bound() & BOUND_LOWER)
                 && tte->depth() >= depth - 3)
@@ -1076,7 +1076,7 @@ moves_loop:  // When in check, search starts here
                 extension = 1;
 
             // Quiet ttMove extensions (~1 Elo)
-            else if (PvNode && move == ttMove && move == ss->killers[0]
+            else if (PvNode && move == ss->killers[0]
                      && (*contHist[0])[movedPiece][to_sq(move)] >= 4194)
                 extension = 1;
         }
