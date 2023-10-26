@@ -68,9 +68,6 @@ using namespace Search;
 
 namespace {
 
-int xx1 = 334, xx2 = 531, xx3 = 1538, xx4 = 334, xx5 = 531, xx6 = 1538;
-TUNE(xx1, xx2, xx3, xx4, xx5, xx6);
-
 // Different node types, used as a template parameter
 enum NodeType {
     NonPV,
@@ -97,10 +94,10 @@ constexpr int futility_move_count(bool improving, Depth depth) {
 }
 
 // History and stats update bonus, based on depth
-int stat_bonus(Depth d) { return std::min(xx1 * d - xx2, xx3); }
+int stat_bonus(Depth d) { return std::min(367 * d - 515, 1558); }
 
 // History and stats update malus, based on depth
-int stat_malus(Depth d) { return std::min(xx4 * d - xx5, xx6); }
+int stat_malus(Depth d) { return std::min(404 * d - 481, 1457); }
 
 // Add a small random component to draw evaluations to avoid 3-fold blindness
 Value value_draw(const Thread* thisThread) {
