@@ -1092,6 +1092,9 @@ moves_loop:  // When in check, search starts here
         ss->currentMove = move;
         ss->continuationHistory =
           &thisThread->continuationHistory[ss->inCheck][capture][movedPiece][to_sq(move)];
+        
+        if (move != ttMove && !pos.see_ge(move, Value(-90)))
+            r += 1;
 
         // Step 16. Make the move
         pos.do_move(move, st, givesCheck);
