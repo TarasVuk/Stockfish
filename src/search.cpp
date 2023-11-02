@@ -788,7 +788,23 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         && (!ttMove || ttCapture))
         return eval;
 
-    // Step 9. Null move search with verification search (~35 Elo)
+    // Step 9. Internal iterative reductions (~9 Elo)
+    // For PV nodes without a ttMove, we decrease depth by 2,
+    // or by 4 if the current position is present in the TT and
+    // the stored depth is greater than or equal to the current depth.
+    // Use qsearch if depth <= 0.
+    if (PvNode && !ttMove)
+        depth -= 2 + 2 * (ss->ttHit && tte->depth() >= depth);
+
+    if (depth <= 0)
+        return qsearch<PV>(pos, ss, alpha, beta);
+
+    // For cutNodes without a ttMove, we decrease depth by 2
+    // if current depth >= 8.
+    if (cutNode && depth >= 8 && !ttMove)
+        depth -= 2;
+
+    // Step 10. Null move search with verification search (~35 Elo)
     if (!PvNode && (ss - 1)->currentMove != MOVE_NULL && (ss - 1)->statScore < 17257 && eval >= beta
         && eval >= ss->staticEval && ss->staticEval >= beta - 24 * depth + 281 && !excludedMove
         && pos.non_pawn_material(us) && ss->ply >= thisThread->nmpMinPly
@@ -828,22 +844,6 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
                 return nullValue;
         }
     }
-
-    // Step 10. Internal iterative reductions (~9 Elo)
-    // For PV nodes without a ttMove, we decrease depth by 2,
-    // or by 4 if the current position is present in the TT and
-    // the stored depth is greater than or equal to the current depth.
-    // Use qsearch if depth <= 0.
-    if (PvNode && !ttMove)
-        depth -= 2 + 2 * (ss->ttHit && tte->depth() >= depth);
-
-    if (depth <= 0)
-        return qsearch<PV>(pos, ss, alpha, beta);
-
-    // For cutNodes without a ttMove, we decrease depth by 2
-    // if current depth >= 8.
-    if (cutNode && depth >= 8 && !ttMove)
-        depth -= 2;
 
     probCutBeta = beta + 168 - 70 * improving;
 
