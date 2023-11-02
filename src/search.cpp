@@ -788,6 +788,22 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         && (!ttMove || ttCapture))
         return eval;
 
+    if (!PvNode && depth == 1 && ss->staticEval > beta + 500 && eval > beta)
+    {
+        ss->currentMove         = MOVE_NULL;
+        ss->continuationHistory = &thisThread->continuationHistory[0][0][NO_PIECE][0];
+
+        pos.do_null_move(st);
+
+        Value nmqsValue = -qsearch<NonPV>(pos, ss + 1, -(beta + 500), -(beta + 500) + 1);
+
+        pos.undo_null_move();
+
+        // Do not return unproven mate or TB scores
+        if (nmqsValue >= beta + 500 && nmqsValue < VALUE_TB_WIN_IN_MAX_PLY)
+            return nmqsValue;
+    }
+
     // Step 9. Null move search with verification search (~35 Elo)
     if (!PvNode && (ss - 1)->currentMove != MOVE_NULL && (ss - 1)->statScore < 17257 && eval >= beta
         && eval >= ss->staticEval && ss->staticEval >= beta - 24 * depth + 281 && !excludedMove
