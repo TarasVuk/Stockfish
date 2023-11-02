@@ -297,7 +297,8 @@ void Thread::search() {
     {
         (ss - i)->continuationHistory =
           &this->continuationHistory[0][0][NO_PIECE][0];  // Use as a sentinel
-        (ss - i)->staticEval = VALUE_NONE;
+        (ss - i)->staticEval  = VALUE_NONE;
+        (ss - i)->quietTtMove = MOVE_NONE;
     }
 
     for (int i = 0; i <= MAX_PLY + 2; ++i)
@@ -612,6 +613,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
               : ss->ttHit ? tte->move()
                           : MOVE_NONE;
     ttCapture = ttMove && pos.capture_stage(ttMove);
+    ss->quietTtMove = ttCapture ? MOVE_NONE : ttMove;
 
     // At this point, if excluded, skip straight to step 6, static eval. However,
     // to save indentation, we list the condition in all code between here and there.
@@ -918,7 +920,7 @@ moves_loop:  // When in check, search starts here
       prevSq != SQ_NONE ? thisThread->counterMoves[pos.piece_on(prevSq)][prevSq] : MOVE_NONE;
 
     MovePicker mp(pos, ttMove, depth, &thisThread->mainHistory, &captureHistory, contHist,
-                  thisThread->pawnHistory, countermove, ss->killers);
+                  thisThread->pawnHistory, countermove, ss->killers, (ss - 2)->quietTtMove);
 
     value            = bestValue;
     moveCountPruning = singularQuietLMR = false;

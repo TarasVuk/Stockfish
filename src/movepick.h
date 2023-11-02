@@ -146,7 +146,8 @@ class MovePicker {
                const PieceToHistory**,
                const PawnHistory&,
                Move,
-               const Move*);
+               const Move*,
+               Move);
     MovePicker(const Position&,
                Move,
                Depth,
@@ -172,7 +173,7 @@ class MovePicker {
     const PieceToHistory**       continuationHistory;
     const PawnHistory&           pawnHistory;
     Move                         ttMove;
-    ExtMove                      refutations[3], *cur, *endMoves, *endBadCaptures;
+    ExtMove                      refutations[4], *cur, *endMoves, *endBadCaptures;
     int                          stage;
     Square                       recaptureSquare;
     Value                        threshold;

@@ -42,6 +42,7 @@ struct Stack {
     int             ply;
     Move            currentMove;
     Move            excludedMove;
+    Move            quietTtMove;
     Move            killers[2];
     Value           staticEval;
     int             statScore;
