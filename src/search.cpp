@@ -590,6 +590,8 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
         beta  = std::min(mate_in(ss->ply + 1), beta);
         if (alpha >= beta)
             return alpha;
+
+        depth = std::min(Depth(VALUE_MATE - beta - ss->ply), depth);
     }
     else
         thisThread->rootDelta = beta - alpha;
