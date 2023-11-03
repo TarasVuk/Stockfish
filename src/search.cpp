@@ -1671,6 +1671,9 @@ void update_all_stats(const Position& pos,
                       int             captureCount,
                       Depth           depth) {
 
+    if (quietCount + captureCount == 0 && depth < 3)
+        return;
+
     Color                  us             = pos.side_to_move();
     Thread*                thisThread     = pos.this_thread();
     CapturePieceToHistory& captureHistory = thisThread->captureHistory;
