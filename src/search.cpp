@@ -789,8 +789,8 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     {
         if (!priorCapture && prevSq != SQ_NONE)
         {
-            update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth));
-            thisThread->mainHistory[~us][from_to((ss - 1)->currentMove)] << -stat_bonus(depth);
+            update_continuation_histories(ss - 1, pos.piece_on(prevSq), prevSq, -stat_bonus(depth) / 4);
+            thisThread->mainHistory[~us][from_to((ss - 1)->currentMove)] << -stat_bonus(depth) / 4;
         }
         return eval;
     }
