@@ -758,6 +758,9 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
               : (ss - 4)->staticEval != VALUE_NONE ? ss->staticEval > (ss - 4)->staticEval
                                                    : true;
 
+    if (!ss->ttPv && depth < 4 && eval + 1000 + 500 * depth <= alpha)
+        return eval;
+
     // Step 7. Razoring (~1 Elo)
     // If eval is really low check with qsearch if it can exceed alpha, if it can't,
     // return a fail low.
@@ -777,9 +780,6 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
              >= beta
         && eval >= beta && eval < 29462  // smaller than TB wins
         && (!ttMove || ttCapture))
-        return eval;
-
-    if (!ss->ttPv && depth < 9 && eval + 200 * depth <= alpha)
         return eval;
 
     // Step 9. Null move search with verification search (~35 Elo)
