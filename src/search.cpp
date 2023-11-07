@@ -1691,7 +1691,7 @@ void update_all_stats(const Position& pos,
                                                    : stat_bonus(depth);  // smaller bonus
 
         // Increase stats for the best move in case it was a quiet move
-        update_quiet_stats(pos, ss, bestMove, quietCount ? bestMoveBonus : 0);
+        update_quiet_stats(pos, ss, bestMove, (quietCount && depth <= 3) ? bestMoveBonus : 0);
         thisThread->pawnHistory[pawn_structure(pos)][moved_piece][to_sq(bestMove)]
           << quietMoveBonus;
 
