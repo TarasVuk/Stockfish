@@ -906,6 +906,9 @@ moves_loop:  // When in check, search starts here
     if (ss->inCheck && PvNode && !ttMove)
         depth -= 2;
 
+    if (depth <= 0)
+        return qsearch<PV>(pos, ss, alpha, beta);
+
     const PieceToHistory* contHist[] = {(ss - 1)->continuationHistory,
                                         (ss - 2)->continuationHistory,
                                         (ss - 3)->continuationHistory,
