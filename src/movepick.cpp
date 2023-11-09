@@ -102,6 +102,7 @@ MovePicker::MovePicker(const Position&              p,
     depth(d) {
     assert(d > 0);
 
+    quietEvasions = true;
     stage = (pos.checkers() ? EVASION_TT : MAIN_TT) + !(ttm && pos.pseudo_legal(ttm));
 }
 
@@ -124,6 +125,7 @@ MovePicker::MovePicker(const Position&              p,
     depth(d) {
     assert(d <= 0);
 
+    quietEvasions = true;
     stage = (pos.checkers() ? EVASION_TT : QSEARCH_TT) + !(ttm && pos.pseudo_legal(ttm));
 }
 
@@ -134,9 +136,9 @@ MovePicker::MovePicker(const Position& p, Move ttm, Value th, const CapturePiece
     captureHistory(cph),
     ttMove(ttm),
     threshold(th) {
-    assert(!pos.checkers());
-
-    stage = PROBCUT_TT
+    
+    quietEvasions = false;
+    stage = (pos.checkers() ? EVASION_TT : PROBCUT_TT)
           + !(ttm && pos.capture_stage(ttm) && pos.pseudo_legal(ttm) && pos.see_ge(ttm, threshold));
 }
 
@@ -215,10 +217,12 @@ void MovePicker::score() {
             if (pos.capture_stage(m))
                 m.value = PieceValue[pos.piece_on(to_sq(m))] - Value(type_of(pos.moved_piece(m)))
                         + (1 << 28);
-            else
+            else if (quietEvasions)
                 m.value = (*mainHistory)[pos.side_to_move()][from_to(m)]
                         + (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
                         + (*pawnHistory)[pawn_structure(pos)][pos.moved_piece(m)][to_sq(m)];
+            else
+                m.value = 0;
         }
 }
 
@@ -334,7 +338,7 @@ top:
         [[fallthrough]];
 
     case EVASION :
-        return select<Best>([]() { return true; });
+        return select<Best>([&]() { return quietEvasions || (pos.capture_stage(*cur) && pos.see_ge(*cur, threshold)); });
 
     case PROBCUT :
         return select<Next>([&]() { return pos.see_ge(*cur, threshold); });
