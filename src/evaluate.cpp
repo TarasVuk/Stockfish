@@ -185,6 +185,8 @@ Value Eval::evaluate(const Position& pos) {
         v       = (nnue * (915 + npm + 9 * pos.count<PAWN>()) + optimism * (154 + npm)) / 1024;
     }
 
+    v += 1;
+
     // Damp down the evaluation linearly when shuffling
     v = v * (200 - shuffling) / 214;
 
