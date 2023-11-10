@@ -904,7 +904,7 @@ moves_loop:  // When in check, search starts here
         return probCutBeta;
 
     if (ss->inCheck && PvNode && !ttMove)
-        depth -= 2;
+        depth -= 2 + 2 * (ss->ttHit && tte->depth() >= depth);
 
     if (depth <= 0)
         return qsearch<PV>(pos, ss, alpha, beta);
