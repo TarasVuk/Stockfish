@@ -776,7 +776,7 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     // The depth condition is important for mate finding.
     if (!ss->ttPv && depth < 9
         && eval - futility_margin(depth, cutNode && !ss->ttHit, improving)
-               - (ss - 1)->statScore / 321
+               - std::clamp((ss - 1)->statScore / 321, -128, 128)
              >= beta
         && eval >= beta && eval < 29462  // smaller than TB wins
         && (!ttMove || ttCapture))
