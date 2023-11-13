@@ -656,8 +656,8 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
             return ttValue;
     }
 
-    if (!PvNode && tte->depth() == depth && (tte->bound() & BOUND_UPPER)
-        && ttValue + 100 <= alpha && pos.rule50_count() < 90)
+    if (!PvNode && tte->depth() == depth && (tte->bound() & BOUND_UPPER) && ttValue + 400 <= alpha
+        && pos.rule50_count() < 90)
         return alpha;
 
     // Step 5. Tablebases probe
