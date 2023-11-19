@@ -1099,7 +1099,7 @@ moves_loop:  // When in check, search starts here
             // Quiet ttMove extensions (~1 Elo)
             else if (PvNode && move == ttMove && move == ss->killers[0]
                      && (*contHist[0])[movedPiece][to_sq(move)] > 4193
-                     && thisThread->mainHistory[us][from_to(move)] > 2000)
+                     && thisThread->mainHistory[us][from_to(move)] > 4000)
                 extension = 1;
 
             // Recapture extensions (~1 Elo)
