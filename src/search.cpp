@@ -68,6 +68,10 @@ using namespace Search;
 
 namespace {
 
+int xx1 = 256, xx2 = 0, xx3 = 0, xx4 = -90;
+TUNE(xx1, xx4);
+TUNE(SetRange(-100, 100), xx2, xx3);
+
 // Different node types, used as a template parameter
 enum NodeType {
     NonPV,
@@ -1540,7 +1544,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
 
                 // If static exchange evaluation is much worse than what is needed to not
                 // fall below alpha we can prune this move.
-                if (futilityBase > alpha && !pos.see_ge(move, (alpha - futilityBase) * 4))
+                if (futilityBase > alpha && !pos.see_ge(move, xx1 * (alpha - futilityBase) / 64))
                 {
                     bestValue = alpha;
                     continue;
@@ -1554,12 +1558,12 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
                 break;
 
             // Continuation history based pruning (~3 Elo)
-            if (!capture && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < 0
-                && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < 0)
+            if (!capture && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < xx2
+                && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < xx3)
                 continue;
 
             // Do not search moves with bad enough SEE values (~5 Elo)
-            if (!pos.see_ge(move, Value(-90)))
+            if (!pos.see_ge(move, Value(xx4)))
                 continue;
         }
 
