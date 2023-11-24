@@ -37,6 +37,9 @@ TranspositionTable TT;  // Our global transposition table
 // overwriting an old position. The update is not atomic and can be racy.
 void TTEntry::save(Key k, Value v, bool pv, Bound b, Depth d, Move m, Value ev) {
 
+    if (!m && move16 && uint16_t(k) != key16)
+        return;
+
     // Preserve any existing move for the same position
     if (m || uint16_t(k) != key16)
         move16 = uint16_t(m);
