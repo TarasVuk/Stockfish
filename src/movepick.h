@@ -91,10 +91,6 @@ struct Stats<T, D, Size>: public std::array<StatsEntry<T, D>, Size> {};
 enum StatsParams {
     NOT_USED = 0
 };
-enum StatsType {
-    NoCaptures,
-    Captures
-};
 
 // ButterflyHistory records how often quiet moves have been successful or unsuccessful
 // during the current search, and is used for reduction and move ordering decisions.

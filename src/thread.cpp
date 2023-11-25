@@ -71,8 +71,8 @@ void Thread::clear() {
     pawnHistory.fill(0);
 
     for (bool inCheck : {false, true})
-        for (StatsType c : {NoCaptures, Captures})
-            for (auto& to : continuationHistory[inCheck][c])
+        for (PieceType pt : {NO_PIECE_TYPE, PAWN, KNIGHT, BISHOP, ROOK, QUEEN, KING})
+            for (auto& to : continuationHistory[inCheck][pt])
                 for (auto& h : to)
                     h->fill(-71);
 }
