@@ -1551,7 +1551,7 @@ Value qsearch(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth) {
                 break;
 
             // Continuation history based pruning (~3 Elo)
-            if (!capture && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < 0
+            if (!capture && moveCount > 1 && (*contHist[0])[pos.moved_piece(move)][to_sq(move)] < 0
                 && (*contHist[1])[pos.moved_piece(move)][to_sq(move)] < 0)
                 continue;
 
