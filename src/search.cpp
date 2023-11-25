@@ -1315,7 +1315,7 @@ moves_loop:  // When in check, search starts here
 
         // If the move is worse than some previously searched move,
         // remember it, to update its stats later.
-        if (move != bestMove && moveCount <= 32)
+        if (moveCount <= 32)
         {
             if (capture)
                 capturesSearched[captureCount++] = move;
@@ -1705,14 +1705,15 @@ void update_all_stats(const Position& pos,
 
         // Decrease stats for all non-best quiet moves
         for (int i = 0; i < quietCount; ++i)
-        {
-            thisThread->pawnHistory[pawn_structure(pos)][pos.moved_piece(quietsSearched[i])]
-                                   [to_sq(quietsSearched[i])]
-              << -moveMalus;
-            thisThread->mainHistory[us][from_to(quietsSearched[i])] << -moveMalus;
-            update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]),
-                                          to_sq(quietsSearched[i]), -moveMalus);
-        }
+            if (quietsSearched[i] != bestMove)
+            {
+                thisThread->pawnHistory[pawn_structure(pos)][pos.moved_piece(quietsSearched[i])]
+                                       [to_sq(quietsSearched[i])]
+                  << -moveMalus;
+                thisThread->mainHistory[us][from_to(quietsSearched[i])] << -moveMalus;
+                update_continuation_histories(ss, pos.moved_piece(quietsSearched[i]),
+                                              to_sq(quietsSearched[i]), -moveMalus);
+            }
     }
     else
     {
@@ -1731,11 +1732,12 @@ void update_all_stats(const Position& pos,
 
     // Decrease stats for all non-best capture moves
     for (int i = 0; i < captureCount; ++i)
-    {
-        moved_piece = pos.moved_piece(capturesSearched[i]);
-        captured    = type_of(pos.piece_on(to_sq(capturesSearched[i])));
-        captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -quietMoveMalus;
-    }
+        if (capturesSearched[i] != bestMove)
+        {
+            moved_piece = pos.moved_piece(capturesSearched[i]);
+            captured    = type_of(pos.piece_on(to_sq(capturesSearched[i])));
+            captureHistory[moved_piece][to_sq(capturesSearched[i])][captured] << -quietMoveMalus;
+        }
 }
 
 
