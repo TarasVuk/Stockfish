@@ -150,7 +150,7 @@ void MovePicker::score() {
 
     [[maybe_unused]] Bitboard threatenedByPawn, threatenedByMinor, threatenedByRook,
       threatenedPieces;
-    if constexpr (Type == QUIETS)
+    if constexpr (Type == QUIETS || Type == EVASIONS)
     {
         Color us = pos.side_to_move();
 
@@ -216,9 +216,27 @@ void MovePicker::score() {
                 m.value = PieceValue[pos.piece_on(to_sq(m))] - Value(type_of(pos.moved_piece(m)))
                         + (1 << 28);
             else
-                m.value = (*mainHistory)[pos.side_to_move()][from_to(m)]
-                        + (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
-                        + (*pawnHistory)[pawn_structure(pos)][pos.moved_piece(m)][to_sq(m)];
+            {
+                Piece     pc   = pos.moved_piece(m);
+                PieceType pt   = type_of(pos.moved_piece(m));
+                Square    from = from_sq(m);
+                Square    to   = to_sq(m);
+
+                m.value = (*mainHistory)[pos.side_to_move()][from]
+                        + (*continuationHistory[0])[pc][to]
+                        + (*pawnHistory)[pawn_structure(pos)][pc][to];
+
+                // malus for putting piece en prise
+                m.value -= !(threatenedPieces & from)
+                           ? (pt == QUEEN ? bool(to & threatenedByRook) * 50000
+                                              + bool(to & threatenedByMinor) * 10000
+                                              + bool(to & threatenedByPawn) * 20000
+                              : pt == ROOK ? bool(to & threatenedByMinor) * 25000
+                                               + bool(to & threatenedByPawn) * 10000
+                              : pt != PAWN ? bool(to & threatenedByPawn) * 15000
+                                           : 0)
+                           : 0;
+            }
         }
 }
 
