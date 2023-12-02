@@ -93,11 +93,15 @@ constexpr int futility_move_count(bool improving, Depth depth) {
     return improving ? (3 + depth * depth) : (3 + depth * depth) / 2;
 }
 
+int Bonuses[8] = {-350, -59, 232, 523, 814, 1105, 1200, 1200};
+int Maluses[8] = {-361, 0, 361, 722, 1083, 1182, 1182, 1182};
+TUNE(SetRange(-500, 1500), Bonuses, Maluses);
+
 // History and stats update bonus, based on depth
-int stat_bonus(Depth d) { return std::min(291 * d - 350, 1200); }
+int stat_bonus(Depth d) { return Bonuses[std::clamp(d, 0, 7)]; }
 
 // History and stats update malus, based on depth
-int stat_malus(Depth d) { return std::min(361 * d - 361, 1182); }
+int stat_malus(Depth d) { return Maluses[std::clamp(d, 0, 7)]; }
 
 // Add a small random component to draw evaluations to avoid 3-fold blindness
 Value value_draw(const Thread* thisThread) {
