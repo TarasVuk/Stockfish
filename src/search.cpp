@@ -93,9 +93,8 @@ constexpr int futility_move_count(bool improving, Depth depth) {
     return improving ? (3 + depth * depth) : (3 + depth * depth) / 2;
 }
 
-int Bonuses[8] = {-350, -59, 232, 523, 814, 1105, 1200, 1200};
-int Maluses[8] = {-361, 0, 361, 722, 1083, 1182, 1182, 1182};
-TUNE(SetRange(-500, 1500), Bonuses, Maluses);
+int Bonuses[8] = {-356, -20, 161, 488, 805, 1142, 1279, 1231};
+int Maluses[8] = {-348, 98, 439, 729, 1061, 1212, 1251, 1190};
 
 // History and stats update bonus, based on depth
 int stat_bonus(Depth d) { return Bonuses[std::clamp(d, 0, 7)]; }
