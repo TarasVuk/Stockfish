@@ -216,7 +216,8 @@ void MovePicker::score() {
             else
                 m.value = (*mainHistory)[pos.side_to_move()][from_to(m)]
                         + (*continuationHistory[0])[pos.moved_piece(m)][to_sq(m)]
-                        + (*pawnHistory)[pawn_structure(pos)][pos.moved_piece(m)][to_sq(m)];
+                        + (*pawnHistory)[pawn_structure(pos)][pos.moved_piece(m)][to_sq(m)]
+                        - (type_of(pos.moved_piece(m)) == KING) * 10000;
         }
 }
 
