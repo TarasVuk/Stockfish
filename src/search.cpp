@@ -840,6 +840,11 @@ Value search(Position& pos, Stack* ss, Value alpha, Value beta, Depth depth, boo
     if (cutNode && depth >= 8 && !ttMove)
         depth -= 2;
 
+    if (!PvNode && !excludedMove && tte->depth() > depth && ttValue != VALUE_NONE
+        && (tte->bound() & (ttValue >= beta ? BOUND_LOWER : BOUND_UPPER))
+        && pos.rule50_count() < 90)
+        return ttValue;
+
     probCutBeta = beta + 163 - 67 * improving;
 
     // Step 11. ProbCut (~10 Elo)
