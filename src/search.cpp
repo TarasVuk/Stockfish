@@ -68,6 +68,8 @@ using namespace Search;
 
 namespace {
 
+int xx1 = 50, xx2 = 100, xx3 = 50, xx4 = 100;
+
 // Different node types, used as a template parameter
 enum NodeType {
     NonPV,
@@ -77,7 +79,7 @@ enum NodeType {
 
 // Futility margin
 Value futility_margin(Depth d, bool noTtCutNode, bool improving) {
-    return Value((116 - 44 * noTtCutNode) * (d - improving));
+    return Value(std::max(xx1 - xx4 * improving + (xx2 - xx3 * noTtCutNode) * d, 0));
 }
 
 // Reductions lookup table initialized at startup
