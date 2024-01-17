@@ -61,8 +61,6 @@ using namespace Search;
 
 namespace {
 
-int xx1 = 268, xx2 = 173;
-TUNE(xx1, xx2);
 
 // Futility margin
 Value futility_margin(Depth d, bool noTtCutNode, bool improving) {
@@ -1786,7 +1784,7 @@ void update_all_stats(const Position& pos,
 
     if (!pos.capture_stage(bestMove))
     {
-        int bestMoveBonus = quietMoveBonus + xx1 * (bestValue > beta + xx2);
+        int bestMoveBonus = quietMoveBonus + 265 * (bestValue > beta + 164);
 
         // Increase stats for the best move in case it was a quiet move
         update_quiet_stats(pos, ss, workerThread, bestMove, bestMoveBonus);
