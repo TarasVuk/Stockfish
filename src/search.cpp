@@ -1086,7 +1086,7 @@ moves_loop:  // When in check, search starts here
 
         // Add extension to new depth
         newDepth += extension;
-        ss->multipleExtensions = (ss - 1)->multipleExtensions + (extension >= 2);
+        ss->multipleExtensions = (ss - 1)->multipleExtensions + (extension >= 2) + (extension >= 3);
 
         // Speculative prefetch as early as possible
         prefetch(tt.first_entry(pos.key_after(move)));
