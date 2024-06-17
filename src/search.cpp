@@ -792,7 +792,8 @@ Value Search::Worker::search(
     if (!PvNode && (ss - 1)->currentMove != Move::null() && (ss - 1)->statScore < 14369
         && eval >= beta && ss->staticEval >= beta - 21 * depth + 393 && !excludedMove
         && pos.non_pawn_material(us) && ss->ply >= thisThread->nmpMinPly
-        && beta > VALUE_TB_LOSS_IN_MAX_PLY)
+        && !((ttData.bound & BOUND_UPPER) && ttData.value != VALUE_NONE)
+        && beta > VALUE_TB_LOSS_IN_MAX_PLY )
     {
         assert(eval - beta >= 0);
 
