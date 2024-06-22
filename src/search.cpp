@@ -55,14 +55,18 @@ using namespace Search;
 
 namespace {
 
+int xx1 = 109, xx2 = 40, xx3 = 59, xx4 = 0, xx5 = 328, xx6 = 0;
+TUNE(xx1, xx2, xx3, xx5);
+TUNE(SetRange(-200, 200), xx4, xx6);
+
 static constexpr double EvalLevel[10] = {0.981, 0.956, 0.895, 0.949, 0.913,
                                          0.942, 0.933, 0.890, 0.984, 0.941};
 
 // Futility margin
 Value futility_margin(Depth d, bool noTtCutNode, bool improving, bool oppWorsening) {
-    Value futilityMult       = 109 - 40 * noTtCutNode;
-    Value improvingDeduction = 59 * improving * futilityMult / 32;
-    Value worseningDeduction = 328 * oppWorsening * futilityMult / 1024;
+    Value futilityMult       = xx1 - xx2 * noTtCutNode;
+    Value improvingDeduction = xx3 * improving * (futilityMult + xx4) / 32;
+    Value worseningDeduction = xx5 * oppWorsening * (futilityMult + xx6) / 1024;
 
     return futilityMult * d - improvingDeduction - worseningDeduction;
 }
