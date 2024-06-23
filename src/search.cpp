@@ -557,7 +557,7 @@ Value Search::Worker::search(
     Depth extension, newDepth;
     Value bestValue, value, eval, maxValue, probCutBeta, singularValue;
     bool  givesCheck, improving, priorCapture, opponentWorsening;
-    bool  capture, moveCountPruning, ttCapture;
+    bool  capture, quietCountPruning, ttCapture;
     Piece movedPiece;
     int   moveCount, captureCount, quietCount;
     Bound singularBound;
@@ -925,13 +925,13 @@ moves_loop:  // When in check, search starts here
                   contHist, &thisThread->pawnHistory, countermove, ss->killers);
 
     value            = bestValue;
-    moveCountPruning = false;
+    quietCountPruning = false;
     singularValue    = VALUE_INFINITE;
     singularBound    = BOUND_NONE;
 
     // Step 13. Loop through all pseudo-legal moves until no moves remain
     // or a beta cutoff occurs.
-    while ((move = mp.next_move(moveCountPruning)) != Move::none())
+    while ((move = mp.next_move(quietCountPruning)) != Move::none())
     {
         assert(move.is_ok());
 
@@ -976,9 +976,9 @@ moves_loop:  // When in check, search starts here
         // Depth conditions are important for mate finding.
         if (!rootNode && pos.non_pawn_material(us) && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
         {
-            // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~8 Elo)
-            moveCountPruning =
-              moveCount >= futility_move_count(improving, depth)
+            // Skip quiet moves if quietCount exceeds our FutilityMoveCount threshold (~8 Elo)
+            quietCountPruning =
+              quietCount >= futility_move_count(improving, depth)
                              - (singularBound == BOUND_UPPER && singularValue < alpha - 50);
 
             // Reduced depth of the next LMR search
