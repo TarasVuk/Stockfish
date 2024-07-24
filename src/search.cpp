@@ -1154,6 +1154,9 @@ moves_loop:  // When in check, search starts here
         // Decrease/increase reduction for moves with a good/bad history (~8 Elo)
         r -= ss->statScore / 10898;
 
+        if (alpha < VALUE_MATED_IN_MAX_PLY)
+            r = std::min(r, std::max(0, mated_in(ss->ply + depth) - alpha));
+
         // Step 17. Late moves reduction / extension (LMR, ~117 Elo)
         if (depth >= 2 && moveCount > 1 + (rootNode && depth < 10))
         {
