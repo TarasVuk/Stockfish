@@ -52,6 +52,9 @@
 
 namespace Stockfish {
 
+int xx1 = 2000, xx2 = 4664, xx3 = 10898;
+TUNE(xx1, xx2, xx3);
+
 namespace TB = Tablebases;
 
 void syzygy_extend_pv(const OptionsMap&            options,
@@ -1149,10 +1152,11 @@ moves_loop:  // When in check, search starts here
 
         ss->statScore = 2 * thisThread->mainHistory[us][move.from_to()]
                       + (*contHist[0])[movedPiece][move.to_sq()]
-                      + (*contHist[1])[movedPiece][move.to_sq()] - 4664;
+                      + (*contHist[1])[movedPiece][move.to_sq()]
+                      + (move == ss->killer) * xx1 - xx2;
 
         // Decrease/increase reduction for moves with a good/bad history (~8 Elo)
-        r -= ss->statScore / 10898;
+        r -= ss->statScore / xx3;
 
         // Step 17. Late moves reduction / extension (LMR, ~117 Elo)
         if (depth >= 2 && moveCount > 1 + (rootNode && depth < 10))
