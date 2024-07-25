@@ -950,6 +950,9 @@ moves_loop:  // When in check, search starts here
         movedPiece = pos.moved_piece(move);
         givesCheck = pos.gives_check(move);
 
+        if (!givesCheck && beta >= mate_in(ss->ply + 1) && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
+            continue;
+
         // Calculate new depth for this move
         newDepth = depth - 1;
 
