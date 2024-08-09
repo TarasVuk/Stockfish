@@ -1747,6 +1747,9 @@ void update_all_stats(const Position&      pos,
                       ValueList<Move, 32>& capturesSearched,
                       Depth                depth) {
 
+    if (depth <= 1 && ss->moveCount <= 2)
+        return;
+
     CapturePieceToHistory& captureHistory = workerThread.captureHistory;
     Piece                  moved_piece    = pos.moved_piece(bestMove);
     PieceType              captured;
