@@ -980,7 +980,8 @@ moves_loop:  // When in check, search starts here
                 {
                     Value futilityValue = ss->staticEval + 285 + 251 * lmrDepth
                                         + PieceValue[capturedPiece] + captHist / 7;
-                    if (futilityValue <= alpha)
+                                        
+                    if (futilityValue <= alpha && ss->staticEval + PieceValue[capturedPiece] < alpha)
                         continue;
                 }
 
