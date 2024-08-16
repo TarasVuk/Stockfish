@@ -1013,6 +1013,9 @@ moves_loop:  // When in check, search starts here
                     if (bestValue <= futilityValue && std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY
                         && futilityValue < VALUE_TB_WIN_IN_MAX_PLY)
                         bestValue = futilityValue;
+
+                    update_quiet_histories(pos, ss, *this, move, -stat_malus(depth));
+
                     continue;
                 }
 
