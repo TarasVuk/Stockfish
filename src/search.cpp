@@ -1318,6 +1318,9 @@ moves_loop:  // When in check, search starts here
             else
                 quietsSearched.push_back(move);
         }
+
+        if (rootNode && bestValue < alpha - 100 - 100 / moveCount)
+            break;
     }
 
     // Step 21. Check for mate and stalemate
