@@ -981,13 +981,23 @@ moves_loop:  // When in check, search starts here
                     Value futilityValue = ss->staticEval + 285 + 251 * lmrDepth
                                         + PieceValue[capturedPiece] + captHist / 7;
                     if (futilityValue <= alpha)
+                    {
+                        if (moveCount <= 32)
+                            capturesSearched.push_back(move);
+
                         continue;
+                    }
                 }
 
                 // SEE based pruning for captures and checks (~11 Elo)
                 int seeHist = std::clamp(captHist / 32, -182 * depth, 166 * depth);
                 if (!pos.see_ge(move, -168 * depth - seeHist))
+                 {
+                    if (moveCount <= 32)
+                        capturesSearched.push_back(move);
+                        
                     continue;
+                }
             }
             else
             {
@@ -998,7 +1008,12 @@ moves_loop:  // When in check, search starts here
 
                 // Continuation history based pruning (~2 Elo)
                 if (history < -4165 * depth)
+                {
+                    if (moveCount <= 32)
+                        quietsSearched.push_back(move);
+
                     continue;
+                }
 
                 history += 2 * thisThread->mainHistory[us][move.from_to()];
 
@@ -1013,6 +1028,10 @@ moves_loop:  // When in check, search starts here
                     if (bestValue <= futilityValue && std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY
                         && futilityValue < VALUE_TB_WIN_IN_MAX_PLY)
                         bestValue = futilityValue;
+
+                    if (moveCount <= 32)
+                        quietsSearched.push_back(move);
+
                     continue;
                 }
 
