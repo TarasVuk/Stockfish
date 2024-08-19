@@ -388,6 +388,15 @@ Position& Position::set(const string& code, Color c, StateInfo* si) {
     return set(fenStr, false, si);
 }
 
+Position& Position::set(const Position& pos, StateInfo* si) {
+
+    std::memcpy(this, &pos, sizeof(Position));
+    std::memcpy(si, pos.state(), offsetof(StateInfo, checkersBB));
+    st = si;
+
+    return *this;
+}
+
 
 // Returns a FEN representation of the position. In case of
 // Chess960 the Shredder-FEN notation is used. This is mainly a debugging function.

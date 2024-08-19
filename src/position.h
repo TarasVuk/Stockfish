@@ -88,6 +88,7 @@ class Position {
     // FEN string input/output
     Position&   set(const std::string& fenStr, bool isChess960, StateInfo* si);
     Position&   set(const std::string& code, Color c, StateInfo* si);
+    Position&   set(const Position& pos, StateInfo* si);
     std::string fen() const;
 
     // Position representation
