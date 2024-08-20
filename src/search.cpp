@@ -1428,6 +1428,7 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
     Value bestValue, value, futilityBase;
     bool  pvHit, givesCheck, capture;
     int   moveCount;
+    Piece movedPiece, capturedPiece;
     Color us = pos.side_to_move();
 
     // Step 1. Initialize node
@@ -1539,8 +1540,10 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
         if (!pos.legal(move))
             continue;
 
+        movedPiece = pos.moved_piece(move);
         givesCheck = pos.gives_check(move);
         capture    = pos.capture_stage(move);
+        capturedPiece = pos.piece_on(move.to_sq());
 
         moveCount++;
 
@@ -1554,7 +1557,9 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
                 if (moveCount > 2)
                     continue;
 
-                Value futilityValue = futilityBase + PieceValue[pos.piece_on(move.to_sq())];
+                Value futilityValue =
+                  futilityBase + PieceValue[capturedPiece]
+                  + std::clamp(thisThread->captureHistory[movedPiece][move.to_sq()][type_of(capturedPiece)] / 64, -50, 50);
 
                 // If static eval + value of piece we are going to capture is
                 // much lower than alpha, we can prune this move. (~2 Elo)
@@ -1583,9 +1588,9 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
 
             // Continuation history based pruning (~3 Elo)
             if (!capture
-                && (*contHist[0])[pos.moved_piece(move)][move.to_sq()]
-                       + (*contHist[1])[pos.moved_piece(move)][move.to_sq()]
-                       + thisThread->pawnHistory[pawn_structure_index(pos)][pos.moved_piece(move)]
+                && (*contHist[0])[movedPiece][move.to_sq()]
+                       + (*contHist[1])[movedPiece][move.to_sq()]
+                       + thisThread->pawnHistory[pawn_structure_index(pos)][movedPiece]
                                                 [move.to_sq()]
                      <= 4643)
                 continue;
