@@ -1593,7 +1593,11 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
                 continue;
 
             // Do not search moves with bad enough SEE values (~5 Elo)
-            if (!pos.see_ge(move, -83))
+            int seeHist = std::clamp(thisThread->captureHistory[pos.moved_piece(move)][move.to_sq()]
+                                                               [pos.piece_on(move.to_sq())]
+                                       / 32,
+                                     -50, 50);
+            if (!pos.see_ge(move, -83 - seeHist))
                 continue;
         }
 
