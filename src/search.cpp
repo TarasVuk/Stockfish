@@ -1073,7 +1073,12 @@ moves_loop:  // When in check, search starts here
                 // singular (multiple moves fail high), and we can prune the whole
                 // subtree by returning a softbound.
                 else if (value >= beta && std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY)
+                {
+                    if (!ttCapture)
+                        update_continuation_histories(ss, movedPiece, move.to_sq(), -stat_malus(depth));
+
                     return value;
+                }
 
                 // Negative extensions
                 // If other moves failed high over (ttValue - margin) without the
