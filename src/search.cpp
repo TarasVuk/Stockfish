@@ -1064,6 +1064,8 @@ moves_loop:  // When in check, search starts here
                               + (value < singularBeta - tripleMargin);
 
                     depth += ((!PvNode) && (depth < 16));
+
+                    update_continuation_histories(ss, movedPiece, move.to_sq(), stat_bonus(singularDepth));
                 }
 
                 // Multi-cut pruning
