@@ -81,17 +81,21 @@ void partial_insertion_sort(ExtMove* begin, ExtMove* end, int limit) {
 MovePicker::MovePicker(const Position&              p,
                        Move                         ttm,
                        Depth                        d,
+                       bool                         pv,
                        const ButterflyHistory*      mh,
+                       const ButterflyHistory*      pvh,
                        const CapturePieceToHistory* cph,
                        const PieceToHistory**       ch,
                        const PawnHistory*           ph) :
     pos(p),
     mainHistory(mh),
+    PvHistory(pvh),
     captureHistory(cph),
     continuationHistory(ch),
     pawnHistory(ph),
     ttMove(ttm),
-    depth(d) {
+    depth(d),
+    PvNode(pv) {
 
     if (pos.checkers())
         stage = EVASION_TT + !(ttm && pos.pseudo_legal(ttm));
@@ -159,6 +163,9 @@ void MovePicker::score() {
             m.value += (*continuationHistory[2])[pc][to] / 3;
             m.value += (*continuationHistory[3])[pc][to];
             m.value += (*continuationHistory[5])[pc][to];
+
+            if (PvNode)
+                m.value += (*PvHistory)[pos.side_to_move()][m.from_to()];
 
             // bonus for checks
             m.value += bool(pos.check_squares(pt) & to) * 16384;

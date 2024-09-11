@@ -170,6 +170,8 @@ class MovePicker {
     MovePicker(const Position&,
                Move,
                Depth,
+               bool,
+               const ButterflyHistory*,
                const ButterflyHistory*,
                const CapturePieceToHistory*,
                const PieceToHistory**,
@@ -187,6 +189,7 @@ class MovePicker {
 
     const Position&              pos;
     const ButterflyHistory*      mainHistory;
+    const ButterflyHistory*      PvHistory;
     const CapturePieceToHistory* captureHistory;
     const PieceToHistory**       continuationHistory;
     const PawnHistory*           pawnHistory;
@@ -195,6 +198,7 @@ class MovePicker {
     int                          stage;
     int                          threshold;
     Depth                        depth;
+    bool                         PvNode;
     ExtMove                      moves[MAX_MOVES];
 };
 
