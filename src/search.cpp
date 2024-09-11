@@ -265,6 +265,8 @@ void Search::Worker::iterative_deepening() {
 
     int searchAgainCounter = 0;
 
+    PvHistory.fill(0);
+
     // Iterative deepening loop until requested to stop or the target depth is reached
     while (++rootDepth < MAX_PLY && !threads.stop
            && !(limits.depth && mainThread && rootDepth > limits.depth))
