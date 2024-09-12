@@ -1759,8 +1759,8 @@ void update_all_stats(const Position&      pos,
     Piece                  moved_piece    = pos.moved_piece(bestMove);
     PieceType              captured;
 
-    int quietMoveBonus = stat_bonus(depth + pv);
-    int quietMoveMalus = stat_malus(depth + pv);
+    int quietMoveBonus = stat_bonus(depth + 2 * pv);
+    int quietMoveMalus = stat_malus(depth + 2 * pv);
 
     if (!pos.capture_stage(bestMove))
     {
