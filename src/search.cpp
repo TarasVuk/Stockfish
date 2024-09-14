@@ -1143,6 +1143,10 @@ moves_loop:  // When in check, search starts here
         if (ttCapture && !capture)
             r++;
 
+        // Reduce other moves if we have found at least one score improvement
+        if (depth > 2 && depth < 14 && alpha == bestValue && std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY)
+            r += 2;
+
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
         if ((ss + 1)->cutoffCnt > 3)
             r += 1 + allNode;
@@ -1300,10 +1304,6 @@ moves_loop:  // When in check, search starts here
                 }
                 else
                 {
-                    // Reduce other moves if we have found at least one score improvement (~2 Elo)
-                    if (depth > 2 && depth < 14 && std::abs(value) < VALUE_TB_WIN_IN_MAX_PLY)
-                        depth -= 2;
-
                     assert(depth > 0);
                     alpha = value;  // Update alpha! Always alpha < beta
                 }
