@@ -65,6 +65,12 @@ using namespace Search;
 
 namespace {
 
+int xx1 = 66;
+int xx2 = 128;
+int xx3 = 128;
+int xx4 = 2048;
+TUNE(xx1, xx2, xx3, xx4);
+
 // Futility margin
 Value futility_margin(Depth d, bool noTtCutNode, bool improving, bool oppWorsening) {
     Value futilityMult       = 122 - 37 * noTtCutNode;
@@ -85,7 +91,7 @@ Value to_corrected_static_eval(Value v, const Worker& w, const Position& pos) {
       w.pawnCorrectionHistory[pos.side_to_move()][pawn_structure_index<Correction>(pos)];
     const auto mcv = w.materialCorrectionHistory[pos.side_to_move()][material_index(pos)];
     const auto cv  = (2 * pcv + mcv) / 3;
-    v += 66 * cv / 512;
+    v += xx1 * cv / 512;
     return std::clamp(v, VALUE_TB_LOSS_IN_MAX_PLY + 1, VALUE_TB_WIN_IN_MAX_PLY - 1);
 }
 
@@ -1390,7 +1396,7 @@ moves_loop:  // When in check, search starts here
         && !(bestValue >= beta && bestValue <= ss->staticEval)
         && !(!bestMove && bestValue >= ss->staticEval))
     {
-        auto bonus = std::clamp(int(bestValue - ss->staticEval) * std::min(depth, 16) / 8,
+        auto bonus = std::clamp(int(bestValue - ss->staticEval) * std::min(xx2 * depth + xx3, xx4) / 1024,
                                 -CORRECTION_HISTORY_LIMIT / 4, CORRECTION_HISTORY_LIMIT / 4);
         thisThread->pawnCorrectionHistory[us][pawn_structure_index<Correction>(pos)] << bonus;
         thisThread->materialCorrectionHistory[us][material_index(pos)] << bonus;
