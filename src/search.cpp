@@ -490,8 +490,8 @@ void Search::Worker::clear() {
     mainHistory.fill(0);
     captureHistory.fill(-700);
     pawnHistory.fill(-1188);
-    pawnCorrectionHistory.fill(0);
-    materialCorrectionHistory.fill(0);
+    pawnCorrectionHistory.fill(50);
+    materialCorrectionHistory.fill(50);
 
     for (bool inCheck : {false, true})
         for (StatsType c : {NoCaptures, Captures})
