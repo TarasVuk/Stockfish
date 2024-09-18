@@ -35,6 +35,7 @@
 namespace Stockfish {
 
 constexpr int PAWN_HISTORY_SIZE                   = 512;    // has to be a power of 2
+constexpr int MATERIAL_HISTORY_SIZE               = 512;    // has to be a power of 2
 constexpr int PAWN_CORRECTION_HISTORY_SIZE        = 16384;  // has to be a power of 2
 constexpr int MATERIAL_CORRECTION_HISTORY_SIZE    = 32768;  // has to be a power of 2
 constexpr int MAJOR_PIECE_CORRECTION_HISTORY_SIZE = 32768;  // has to be a power of 2
@@ -48,18 +49,19 @@ static_assert((PAWN_HISTORY_SIZE & (PAWN_HISTORY_SIZE - 1)) == 0,
 static_assert((PAWN_CORRECTION_HISTORY_SIZE & (PAWN_CORRECTION_HISTORY_SIZE - 1)) == 0,
               "CORRECTION_HISTORY_SIZE has to be a power of 2");
 
-enum PawnHistoryType {
+enum HistoryType {
     Normal,
     Correction
 };
 
-template<PawnHistoryType T = Normal>
+template<HistoryType T = Normal>
 inline int pawn_structure_index(const Position& pos) {
     return pos.pawn_key() & ((T == Normal ? PAWN_HISTORY_SIZE : PAWN_CORRECTION_HISTORY_SIZE) - 1);
 }
 
+template<HistoryType T = Normal>
 inline int material_index(const Position& pos) {
-    return pos.material_key() & (MATERIAL_CORRECTION_HISTORY_SIZE - 1);
+    return pos.material_key() & ((T == Normal ? MATERIAL_HISTORY_SIZE : MATERIAL_CORRECTION_HISTORY_SIZE) - 1);
 }
 
 inline int major_piece_index(const Position& pos) {
@@ -154,6 +156,9 @@ using ContinuationHistory = Stats<PieceToHistory, NOT_USED, PIECE_NB, SQUARE_NB>
 // PawnHistory is addressed by the pawn structure and a move's [piece][to]
 using PawnHistory = Stats<int16_t, 8192, PAWN_HISTORY_SIZE, PIECE_NB, SQUARE_NB>;
 
+// MaterialHistory is addressed by material configuration and a move's [piece][to]
+using MaterialHistory = Stats<int16_t, 8192, PAWN_HISTORY_SIZE, PIECE_NB, SQUARE_NB>;
+
 // Correction histories record differences between the static evaluation of
 // positions and their search score. It is used to improve the static evaluation
 // used by some search heuristics.
@@ -203,6 +208,7 @@ class MovePicker {
                const CapturePieceToHistory*,
                const PieceToHistory**,
                const PawnHistory*,
+               const MaterialHistory*,
                bool);
     MovePicker(const Position&, Move, int, const CapturePieceToHistory*);
     Move next_move(bool skipQuiets = false);
@@ -221,6 +227,7 @@ class MovePicker {
     const CapturePieceToHistory* captureHistory;
     const PieceToHistory**       continuationHistory;
     const PawnHistory*           pawnHistory;
+    const MaterialHistory*       materialHistory;
     Move                         ttMove;
     ExtMove *                    cur, *endMoves, *endBadCaptures, *beginBadQuiets, *endBadQuiets;
     int                          stage;

@@ -86,6 +86,7 @@ MovePicker::MovePicker(const Position&              p,
                        const CapturePieceToHistory* cph,
                        const PieceToHistory**       ch,
                        const PawnHistory*           ph,
+                       const MaterialHistory*       mah,
                        bool                         rn) :
     pos(p),
     mainHistory(mh),
@@ -93,6 +94,7 @@ MovePicker::MovePicker(const Position&              p,
     captureHistory(cph),
     continuationHistory(ch),
     pawnHistory(ph),
+    materialHistory(mah),
     ttMove(ttm),
     depth(d),
     rootNode(rn) {
@@ -163,6 +165,7 @@ void MovePicker::score() {
             m.value += (*continuationHistory[2])[pc][to] / 3;
             m.value += (*continuationHistory[3])[pc][to];
             m.value += (*continuationHistory[5])[pc][to];
+            m.value += (*materialHistory)[material_index(pos)][pc][to];
 
             // bonus for checks
             m.value += bool(pos.check_squares(pt) & to) * 16384;
@@ -191,7 +194,8 @@ void MovePicker::score() {
             else
                 m.value = (*mainHistory)[pos.side_to_move()][m.from_to()]
                         + (*continuationHistory[0])[pos.moved_piece(m)][m.to_sq()]
-                        + (*pawnHistory)[pawn_structure_index(pos)][pos.moved_piece(m)][m.to_sq()];
+                        + (*pawnHistory)[pawn_structure_index(pos)][pos.moved_piece(m)][m.to_sq()]
+                        + (*materialHistory)[material_index(pos)][pos.moved_piece(m)][m.to_sq()];
         }
 }
 
