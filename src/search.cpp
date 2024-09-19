@@ -885,8 +885,8 @@ Value Search::Worker::search(
             thisThread->nodes.fetch_add(1, std::memory_order_relaxed);
             pos.do_move(move, st);
 
-            // Perform a preliminary search to verify that the move holds
-            value = -search<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1, depth - 10, !cutNode);
+            // Perform a preliminary qsearch to verify that the move holds
+            value = move == ttData.move ? VALUE_INFINITE : -qsearch<NonPV>(pos, ss + 1, -probCutBeta, -probCutBeta + 1);
 
             // If the qsearch held, perform the regular search
             if (value >= probCutBeta)
