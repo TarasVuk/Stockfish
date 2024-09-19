@@ -908,6 +908,8 @@ Value Search::Worker::search(
             }
         }
 
+        depth--;
+
         Eval::NNUE::hint_common_parent_position(pos, networks[numaAccessToken], refreshTable);
     }
 
