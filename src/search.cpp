@@ -1159,6 +1159,9 @@ moves_loop:  // When in check, search starts here
         if (ttCapture && !capture)
             r++;
 
+        if (pos.checkers() & move.to_sq())
+            r--;
+
         // Increase reduction if next ply has a lot of fail high (~5 Elo)
         if ((ss + 1)->cutoffCnt > 3)
             r += 1 + allNode;
