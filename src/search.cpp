@@ -920,7 +920,7 @@ moves_loop:  // When in check, search starts here
         && std::abs(ttData.value) < VALUE_TB_WIN_IN_MAX_PLY)
         return probCutBeta;
 
-    if (ss->inCheck && (ttData.bound & BOUND_UPPER) && ttData.value < alpha - 700 && depth < 2
+    if (ss->inCheck && (ttData.bound & BOUND_UPPER) && ttData.value < alpha - 400 && depth < 2
         && std::abs(ttData.value) < VALUE_TB_WIN_IN_MAX_PLY)
     {
         value = qsearch<NonPV>(pos, ss, alpha - 1, alpha);
