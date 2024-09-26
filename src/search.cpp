@@ -842,7 +842,7 @@ Value Search::Worker::search(
     if (cutNode && depth >= 7 && (!ttData.move || ttData.bound == BOUND_UPPER))
         depth -= 1 + !ttData.move;
 
-    if (PvNode && ttData.move && ttData.depth > depth * 2 && depth < MAX_PLY - 1)
+    if (PvNode && ttData.move && ttData.depth > depth * 2 && !excludedMove && depth < MAX_PLY - 1)
         depth += 1 + (depth > 8);
 
     // Step 11. ProbCut (~10 Elo)
