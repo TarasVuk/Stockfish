@@ -842,6 +842,9 @@ Value Search::Worker::search(
     if (cutNode && depth >= 7 && (!ttData.move || ttData.bound == BOUND_UPPER))
         depth -= 1 + !ttData.move;
 
+    if (PvNode && ttData.move && ttData.depth > depth * 2 && depth < MAX_PLY - 1)
+        depth++;
+
     // Step 11. ProbCut (~10 Elo)
     // If we have a good enough capture (or queen promotion) and a reduced search
     // returns a value much above beta, we can (almost) safely prune the previous move.
