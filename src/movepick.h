@@ -203,8 +203,9 @@ class MovePicker {
                const CapturePieceToHistory*,
                const PieceToHistory**,
                const PawnHistory*,
-               int);
-    MovePicker(const Position&, Move, int, const CapturePieceToHistory*);
+               int,
+               Square);
+    MovePicker(const Position&, Move, int, const CapturePieceToHistory*, Square);
     Move next_move(bool skipQuiets = false);
 
    private:
@@ -227,6 +228,7 @@ class MovePicker {
     int                          threshold;
     Depth                        depth;
     int                          ply;
+    Square                       prevSq;
     ExtMove                      moves[MAX_MOVES];
 };
 
