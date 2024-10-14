@@ -64,6 +64,9 @@ using namespace Search;
 
 namespace {
 
+int xx1 = 128, xx2 = 32, xx3 = 32, xx4 = 192;
+TUNE(xx1, xx2, xx3, xx4);
+
 // Futility margin
 Value futility_margin(Depth d, bool noTtCutNode, bool improving, bool oppWorsening) {
     Value futilityMult       = 118 - 33 * noTtCutNode;
@@ -73,8 +76,9 @@ Value futility_margin(Depth d, bool noTtCutNode, bool improving, bool oppWorseni
     return futilityMult * d - improvingDeduction - worseningDeduction;
 }
 
-constexpr int futility_move_count(bool improving, Depth depth) {
-    return (3 + depth * depth) / (2 - improving);
+constexpr int futility_move_count(bool improving, bool oppWorsening, Depth depth) {
+    int mult = xx1 - xx2 * improving - xx3 * oppWorsening;
+    return (xx4 + mult * depth * depth) / 64;
 }
 
 // Add correctionHistory value to raw staticEval and guarantee evaluation
@@ -720,6 +724,7 @@ Value Search::Worker::search(
         // Skip early pruning when in check
         ss->staticEval = eval = (ss - 2)->staticEval;
         improving             = false;
+        opponentWorsening     = false;
         goto moves_loop;
     }
     else if (excludedMove)
@@ -996,7 +1001,7 @@ moves_loop:  // When in check, search starts here
         if (!rootNode && pos.non_pawn_material(us) && bestValue > VALUE_TB_LOSS_IN_MAX_PLY)
         {
             // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold (~8 Elo)
-            moveCountPruning = moveCount >= futility_move_count(improving, depth);
+            moveCountPruning = moveCount >= futility_move_count(improving, opponentWorsening, depth);
 
             // Reduced depth of the next LMR search
             int lmrDepth = newDepth - r;
