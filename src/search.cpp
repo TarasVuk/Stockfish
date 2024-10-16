@@ -64,9 +64,6 @@ using namespace Search;
 
 namespace {
 
-int xx1 = 128, xx2 = 32, xx3 = 32, xx4 = 192;
-TUNE(xx1, xx2, xx3, xx4);
-
 // Futility margin
 Value futility_margin(Depth d, bool noTtCutNode, bool improving, bool oppWorsening) {
     Value futilityMult       = 118 - 33 * noTtCutNode;
@@ -76,9 +73,9 @@ Value futility_margin(Depth d, bool noTtCutNode, bool improving, bool oppWorseni
     return futilityMult * d - improvingDeduction - worseningDeduction;
 }
 
-int futility_move_count(bool improving, bool oppWorsening, Depth depth) {
-    int mult = xx1 - xx2 * improving - xx3 * oppWorsening;
-    return (xx4 + mult * depth * depth) / 64;
+constexpr int futility_move_count(bool improving, bool oppWorsening, Depth depth) {
+    int mult = 128 - 31 * improving - 33 * oppWorsening;
+    return (201 + mult * depth * depth) / 64;
 }
 
 // Add correctionHistory value to raw staticEval and guarantee evaluation
