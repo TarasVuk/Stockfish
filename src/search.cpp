@@ -1013,7 +1013,12 @@ moves_loop:  // When in check, search starts here
                     Value futilityValue = ss->staticEval + 300 + 238 * lmrDepth
                                         + PieceValue[capturedPiece] + captHist / 7;
                     if (futilityValue <= alpha)
+                    {
+                        if (bestValue <= futilityValue && std::abs(bestValue) < VALUE_TB_WIN_IN_MAX_PLY
+                            && futilityValue < VALUE_TB_WIN_IN_MAX_PLY)
+                            bestValue = futilityValue;
                         continue;
+                    }
                 }
 
                 // SEE based pruning for captures and checks (~11 Elo)
