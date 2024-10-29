@@ -1122,7 +1122,7 @@ moves_loop:  // When in check, search starts here
                 else if (cutNode)
                     extension = -2;
 
-                else if (ttData.value <= std::min(value, alpha))
+                else if (ttData.value <= value)
                     extension = -1;
             }
 
