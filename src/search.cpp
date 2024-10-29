@@ -1184,6 +1184,9 @@ moves_loop:  // When in check, search starts here
                       + (*contHist[0])[movedPiece][move.to_sq()]
                       + (*contHist[1])[movedPiece][move.to_sq()] - 4410;
 
+        if (ss->ply < LOW_PLY_HISTORY_SIZE)
+            ss->statScore += 8 * thisThread->lowPlyHistory[ss->ply][move.from_to()] / (1 + 2 * ss->ply);
+
         // Decrease/increase reduction for moves with a good/bad history (~8 Elo)
         r -= ss->statScore / 11016;
 
