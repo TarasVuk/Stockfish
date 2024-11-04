@@ -1617,6 +1617,9 @@ Value Search::Worker::qsearch(Position& pos, Stack* ss, Value alpha, Value beta)
                     bestValue = std::min(alpha, futilityBase);
                     continue;
                 }
+
+                if (capture && thisThread->captureHistory[pos.moved_piece(move)][move.to_sq()][pos.piece_on(move.to_sq())] < 0)
+                    continue;
             }
 
             // Continuation history based pruning (~3 Elo)
