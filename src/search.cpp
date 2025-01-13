@@ -64,6 +64,11 @@ using namespace Search;
 
 namespace {
 
+int xx1 = 7168, xx2 = 243, xx3 = 3459, xx4 = 142, xx5 = 12288, xx6 = -25, xx7 = 1024, xx8 = 1024,
+    xx9 = 1024, xx10 = 1024, xx11 = -3072, xx12 = -2048, xx13 = 1024, xx14 = 1024, xx15 = 1024, xx16 = 512;
+
+TUNE(xx1, xx2, xx3, xx4, xx5, xx6, xx7, xx8, xx9, xx10, xx11, xx12, xx13, xx14, xx15, xx16);
+
 // Futility margin
 Value futility_margin(Depth d, bool noTtCutNode, bool improving, bool oppWorsening) {
     Value futilityMult       = 112 - 26 * noTtCutNode;
@@ -966,7 +971,7 @@ moves_loop:  // When in check, search starts here
         givesCheck = pos.gives_check(move);
 
         // Calculate new depth for this move
-        newDepth = depth - 1;
+        newDepth = depth * 1024 - xx16;
 
         int delta = beta - alpha;
 
@@ -981,7 +986,7 @@ moves_loop:  // When in check, search starts here
                 mp.skip_quiet_moves();
 
             // Reduced depth of the next LMR search
-            int lmrDepth = newDepth - r / 1024;
+            int lmrDepth = newDepth - r;
 
             if (capture || givesCheck)
             {
@@ -990,9 +995,9 @@ moves_loop:  // When in check, search starts here
                   thisThread->captureHistory[movedPiece][move.to_sq()][type_of(capturedPiece)];
 
                 // Futility pruning for captures (~2 Elo)
-                if (!givesCheck && lmrDepth < 7 && !ss->inCheck)
+                if (!givesCheck && lmrDepth < xx1 && !ss->inCheck)
                 {
-                    Value futilityValue = ss->staticEval + 271 + 243 * lmrDepth
+                    Value futilityValue = ss->staticEval + 271 + xx2 * lmrDepth / 1024
                                         + PieceValue[capturedPiece] + captHist / 7;
                     if (futilityValue <= alpha)
                         continue;
@@ -1016,13 +1021,13 @@ moves_loop:  // When in check, search starts here
 
                 history += 2 * thisThread->mainHistory[us][move.from_to()];
 
-                lmrDepth += history / 3459;
+                lmrDepth += 1024 * history / xx3;
 
                 Value futilityValue =
-                  ss->staticEval + (bestValue < ss->staticEval - 47 ? 137 : 47) + 142 * lmrDepth;
+                  ss->staticEval + (bestValue < ss->staticEval - 47 ? 137 : 47) + xx4 * lmrDepth / 1024;
 
                 // Futility pruning: parent node (~13 Elo)
-                if (!ss->inCheck && lmrDepth < 12 && futilityValue <= alpha)
+                if (!ss->inCheck && lmrDepth < xx5 && futilityValue <= alpha)
                 {
                     if (bestValue <= futilityValue && !is_decisive(bestValue)
                         && !is_win(futilityValue))
@@ -1033,7 +1038,7 @@ moves_loop:  // When in check, search starts here
                 lmrDepth = std::max(lmrDepth, 0);
 
                 // Prune moves with negative SEE (~4 Elo)
-                if (!pos.see_ge(move, -25 * lmrDepth * lmrDepth))
+                if (!pos.see_ge(move, xx6 * lmrDepth * lmrDepth / 1048576))
                     continue;
             }
         }
@@ -1061,7 +1066,7 @@ moves_loop:  // When in check, search starts here
                 && (ttData.bound & BOUND_LOWER) && ttData.depth >= depth - 3)
             {
                 Value singularBeta  = ttData.value - (52 + 74 * (ss->ttPv && !PvNode)) * depth / 64;
-                Depth singularDepth = newDepth / 2;
+                Depth singularDepth = newDepth / 2048;
 
                 ss->excludedMove = move;
                 value =
@@ -1077,9 +1082,9 @@ moves_loop:  // When in check, search starts here
                     int quadMargin =
                       394 + 287 * PvNode - 249 * !ttCapture + 99 * ss->ttPv - corrValAdj;
 
-                    extension = 1 + (value < singularBeta - doubleMargin)
-                              + (value < singularBeta - tripleMargin)
-                              + (value < singularBeta - quadMargin);
+                    extension = xx7 + (value < singularBeta - doubleMargin) * xx8
+                              + (value < singularBeta - tripleMargin) * xx9
+                              + (value < singularBeta - quadMargin) * xx10;
 
                     depth += ((!PvNode) && (depth < 15));
                 }
@@ -1102,12 +1107,12 @@ moves_loop:  // When in check, search starts here
 
                 // If the ttMove is assumed to fail high over current beta (~7 Elo)
                 else if (ttData.value >= beta)
-                    extension = -3;
+                    extension = xx11;
 
                 // If we are on a cutNode but the ttMove is not assumed to fail high
                 // over current beta (~1 Elo)
                 else if (cutNode)
-                    extension = -2;
+                    extension = xx12;
             }
 
             // Extension for capturing the previous moved piece (~1 Elo at LTC)
@@ -1115,7 +1120,7 @@ moves_loop:  // When in check, search starts here
                      && thisThread->captureHistory[movedPiece][move.to_sq()]
                                                   [type_of(pos.piece_on(move.to_sq()))]
                           > 4126)
-                extension = 1;
+                extension = xx13;
         }
 
         // Add extension to new depth
@@ -1193,7 +1198,7 @@ moves_loop:  // When in check, search starts here
             // To prevent problems when the max value is less than the min value,
             // std::clamp has been replaced by a more robust implementation.
             Depth d = std::max(
-              1, std::min(newDepth - r / 1024, newDepth + !allNode + (PvNode && !bestMove)));
+              1, std::min((newDepth - r) / 1024, newDepth / 1024 + !allNode + (PvNode && !bestMove)));
 
             value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, d, true);
 
@@ -1202,13 +1207,13 @@ moves_loop:  // When in check, search starts here
             {
                 // Adjust full-depth search based on LMR results - if the result was
                 // good enough search deeper, if it was bad enough search shallower.
-                const bool doDeeperSearch    = value > (bestValue + 40 + 2 * newDepth);  // (~1 Elo)
+                const bool doDeeperSearch    = value > (bestValue + 40 + newDepth / 512);  // (~1 Elo)
                 const bool doShallowerSearch = value < bestValue + 10;                   // (~2 Elo)
 
-                newDepth += doDeeperSearch - doShallowerSearch;
+                newDepth += doDeeperSearch * xx14 - doShallowerSearch * xx15;
 
-                if (newDepth > d)
-                    value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth, !cutNode);
+                if (newDepth / 1024 > d)
+                    value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth / 1024, !cutNode);
 
                 // Post LMR continuation history updates (~1 Elo)
                 int bonus = (value >= beta) * 2048;
@@ -1225,7 +1230,7 @@ moves_loop:  // When in check, search starts here
 
             // Note that if expected reduction is high, we reduce search depth by 1 here (~9 Elo)
             value =
-              -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth - (r > 3444), !cutNode);
+              -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth / 1024 - (r > 3444), !cutNode);
         }
 
         // For PV nodes only, do a full PV search on the first move or after a fail high,
@@ -1237,9 +1242,9 @@ moves_loop:  // When in check, search starts here
 
             // Extend move from transposition table if we are about to dive into qsearch.
             if (move == ttData.move && ss->ply <= thisThread->rootDepth * 2)
-                newDepth = std::max(newDepth, 1);
+                newDepth = std::max(newDepth, 1024);
 
-            value = -search<PV>(pos, ss + 1, -beta, -alpha, newDepth, false);
+            value = -search<PV>(pos, ss + 1, -beta, -alpha, newDepth / 1024, false);
         }
 
         // Step 19. Undo move
@@ -1324,7 +1329,7 @@ moves_loop:  // When in check, search starts here
 
                 if (value >= beta)
                 {
-                    ss->cutoffCnt += !ttData.move + (extension < 2);
+                    ss->cutoffCnt += !ttData.move + (extension < 2048);
                     assert(value >= beta);  // Fail high
                     break;
                 }
