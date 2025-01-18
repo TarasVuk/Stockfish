@@ -64,11 +64,6 @@ using namespace Search;
 
 namespace {
 
-int xx1 = 7168, xx2 = 243, xx3 = 3459, xx4 = 142, xx5 = 12288, xx6 = -25, xx7 = 1024, xx8 = 1024,
-    xx9 = 1024, xx10 = 1024, xx11 = -3072, xx12 = -2048, xx13 = 1024, xx14 = 1024, xx15 = 1024, xx16 = 512;
-
-TUNE(xx1, xx2, xx3, xx4, xx5, xx6, xx7, xx8, xx9, xx10, xx11, xx12, xx13, xx14, xx15, xx16);
-
 // Futility margin
 Value futility_margin(Depth d, bool noTtCutNode, bool improving, bool oppWorsening) {
     Value futilityMult       = 112 - 26 * noTtCutNode;
@@ -971,7 +966,7 @@ moves_loop:  // When in check, search starts here
         givesCheck = pos.gives_check(move);
 
         // Calculate new depth for this move
-        newDepth = depth * 1024 - xx16;
+        newDepth = depth * 1024 - 474;
 
         int delta = beta - alpha;
 
@@ -995,9 +990,9 @@ moves_loop:  // When in check, search starts here
                   thisThread->captureHistory[movedPiece][move.to_sq()][type_of(capturedPiece)];
 
                 // Futility pruning for captures (~2 Elo)
-                if (!givesCheck && lmrDepth < xx1 && !ss->inCheck)
+                if (!givesCheck && lmrDepth < 8077 && !ss->inCheck)
                 {
-                    Value futilityValue = ss->staticEval + 271 + xx2 * lmrDepth / 1024
+                    Value futilityValue = ss->staticEval + 271 + 257 * lmrDepth / 1024
                                         + PieceValue[capturedPiece] + captHist / 7;
                     if (futilityValue <= alpha)
                         continue;
@@ -1021,13 +1016,13 @@ moves_loop:  // When in check, search starts here
 
                 history += 2 * thisThread->mainHistory[us][move.from_to()];
 
-                lmrDepth += 1024 * history / xx3;
+                lmrDepth += 1024 * history / 4379;
 
                 Value futilityValue =
-                  ss->staticEval + (bestValue < ss->staticEval - 47 ? 137 : 47) + xx4 * lmrDepth / 1024;
+                  ss->staticEval + (bestValue < ss->staticEval - 47 ? 137 : 47) + 125 * lmrDepth / 1024;
 
                 // Futility pruning: parent node (~13 Elo)
-                if (!ss->inCheck && lmrDepth < xx5 && futilityValue <= alpha)
+                if (!ss->inCheck && lmrDepth < 11983 && futilityValue <= alpha)
                 {
                     if (bestValue <= futilityValue && !is_decisive(bestValue)
                         && !is_win(futilityValue))
@@ -1038,7 +1033,7 @@ moves_loop:  // When in check, search starts here
                 lmrDepth = std::max(lmrDepth, 0);
 
                 // Prune moves with negative SEE (~4 Elo)
-                if (!pos.see_ge(move, xx6 * lmrDepth * lmrDepth / 1048576))
+                if (!pos.see_ge(move, -4 * lmrDepth * lmrDepth / 1048576))
                     continue;
             }
         }
@@ -1082,9 +1077,9 @@ moves_loop:  // When in check, search starts here
                     int quadMargin =
                       394 + 287 * PvNode - 249 * !ttCapture + 99 * ss->ttPv - corrValAdj;
 
-                    extension = xx7 + (value < singularBeta - doubleMargin) * xx8
-                              + (value < singularBeta - tripleMargin) * xx9
-                              + (value < singularBeta - quadMargin) * xx10;
+                    extension = 1173 + (value < singularBeta - doubleMargin) * 1059
+                              + (value < singularBeta - tripleMargin) * 973
+                              + (value < singularBeta - quadMargin) * 1018;
 
                     depth += ((!PvNode) && (depth < 15));
                 }
@@ -1107,12 +1102,12 @@ moves_loop:  // When in check, search starts here
 
                 // If the ttMove is assumed to fail high over current beta (~7 Elo)
                 else if (ttData.value >= beta)
-                    extension = xx11;
+                    extension = -3139;
 
                 // If we are on a cutNode but the ttMove is not assumed to fail high
                 // over current beta (~1 Elo)
                 else if (cutNode)
-                    extension = xx12;
+                    extension = -2229;
             }
 
             // Extension for capturing the previous moved piece (~1 Elo at LTC)
@@ -1120,7 +1115,7 @@ moves_loop:  // When in check, search starts here
                      && thisThread->captureHistory[movedPiece][move.to_sq()]
                                                   [type_of(pos.piece_on(move.to_sq()))]
                           > 4126)
-                extension = xx13;
+                extension = 1036;
         }
 
         // Add extension to new depth
@@ -1210,7 +1205,7 @@ moves_loop:  // When in check, search starts here
                 const bool doDeeperSearch    = value > (bestValue + 40 + newDepth / 512);  // (~1 Elo)
                 const bool doShallowerSearch = value < bestValue + 10;                   // (~2 Elo)
 
-                newDepth += doDeeperSearch * xx14 - doShallowerSearch * xx15;
+                newDepth += doDeeperSearch * 1036 - doShallowerSearch * 1101;
 
                 if (newDepth / 1024 > d)
                     value = -search<NonPV>(pos, ss + 1, -(alpha + 1), -alpha, newDepth / 1024, !cutNode);
