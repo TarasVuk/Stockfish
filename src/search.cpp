@@ -1432,7 +1432,7 @@ moves_loop:  // When in check, search starts here
 
         // If the move is worse than some previously searched move,
         // remember it, to update its stats later.
-        if (move != bestMove && moveCount <= 32)
+        if (moveCount <= 32)
         {
             if (capture)
                 capturesSearched.push_back(move);
@@ -1905,7 +1905,8 @@ void update_all_stats(const Position&      pos,
 
         // Decrease stats for all non-best quiet moves
         for (Move move : quietsSearched)
-            update_quiet_histories(pos, ss, workerThread, move, -malus * 1310 / 1024);
+            if (move != bestMove)
+                update_quiet_histories(pos, ss, workerThread, move, -malus * 1310 / 1024);
     }
     else
     {
@@ -1921,11 +1922,12 @@ void update_all_stats(const Position&      pos,
 
     // Decrease stats for all non-best capture moves
     for (Move move : capturesSearched)
-    {
-        moved_piece = pos.moved_piece(move);
-        captured    = type_of(pos.piece_on(move.to_sq()));
-        captureHistory[moved_piece][move.to_sq()][captured] << -malus * 1388 / 1024;
-    }
+        if (move != bestMove)
+        {
+            moved_piece = pos.moved_piece(move);
+            captured    = type_of(pos.piece_on(move.to_sq()));
+            captureHistory[moved_piece][move.to_sq()][captured] << -malus * 1388 / 1024;
+        }
 }
 
 
