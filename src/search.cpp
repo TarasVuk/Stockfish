@@ -64,6 +64,10 @@ using namespace Search;
 
 namespace {
 
+Value xx1 = 0, xx2 = 175, xx3 = 0, xx4 = 0, xx5 = 93, xx6 = 0, xx7 = 0, xx8 = 0;
+TUNE(xx2, xx5);
+TUNE(SetRange(-10, 50), xx1, xx3, xx4, xx6, xx7, xx8);
+
 // (*Scalers):
 // The values with Scaler asterisks have proven non-linear scaling.
 // They are optimized to time controls of 180 + 1.8 and longer,
@@ -643,8 +647,8 @@ Value Search::Worker::search(
     Key   posKey;
     Move  move, excludedMove, bestMove;
     Depth extension, newDepth;
-    Value bestValue, value, eval, maxValue, probCutBeta;
-    bool  givesCheck, improving, priorCapture, opponentWorsening;
+    Value bestValue, value, eval, maxValue, probCutBeta, impDiff, oppDiff;
+    bool  givesCheck, priorCapture;
     bool  capture, ttCapture;
     int   priorReduction;
     Piece movedPiece;
@@ -800,7 +804,7 @@ Value Search::Worker::search(
     {
         // Skip early pruning when in check
         ss->staticEval = eval = (ss - 2)->staticEval;
-        improving             = false;
+        impDiff             = -VALUE_INFINITE;
         goto moves_loop;
     }
     else if (excludedMove)
@@ -847,13 +851,13 @@ Value Search::Worker::search(
     // bigger than the previous static evaluation at our turn (if we were in
     // check at our previous move we go back until we weren't in check) and is
     // false otherwise. The improving flag is used in various pruning heuristics.
-    improving = ss->staticEval > (ss - 2)->staticEval;
+    impDiff = ss->staticEval - (ss - 2)->staticEval;
 
-    opponentWorsening = ss->staticEval > -(ss - 1)->staticEval;
+    oppDiff = ss->staticEval + (ss - 1)->staticEval;
 
-    if (priorReduction >= 3 && !opponentWorsening)
+    if (priorReduction >= 3 && oppDiff <= xx1)
         depth++;
-    if (priorReduction >= 1 && depth >= 2 && ss->staticEval + (ss - 1)->staticEval > 175)
+    if (priorReduction >= 1 && depth >= 2 && oppDiff > xx2)
         depth--;
 
     // Step 7. Razoring
@@ -866,7 +870,7 @@ Value Search::Worker::search(
     // The depth condition is important for mate finding.
     if (!ss->ttPv && depth < 14
         && eval
-               - futility_margin(depth, cutNode && !ss->ttHit, improving, opponentWorsening,
+               - futility_margin(depth, cutNode && !ss->ttHit, impDiff > xx3, oppDiff > xx4,
                                  (ss - 1)->statScore, std::abs(correctionValue))
              >= beta
         && eval >= beta && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(eval))
@@ -913,7 +917,7 @@ Value Search::Worker::search(
         }
     }
 
-    improving |= ss->staticEval >= beta + 94;
+    impDiff = std::max(impDiff, ss->staticEval - beta - xx5);
 
     // Step 10. Internal iterative reductions
     // For PV nodes without a ttMove as well as for deep enough cutNodes, we decrease depth.
@@ -924,7 +928,7 @@ Value Search::Worker::search(
     // Step 11. ProbCut
     // If we have a good enough capture (or queen promotion) and a reduced search
     // returns a value much above beta, we can (almost) safely prune the previous move.
-    probCutBeta = beta + 201 - 58 * improving;
+    probCutBeta = beta + 201 - 58 * (impDiff > xx6);
     if (depth >= 3
         && !is_decisive(beta)
         // If value from transposition table is lower than probCutBeta, don't attempt
@@ -1041,7 +1045,7 @@ moves_loop:  // When in check, search starts here
 
         int delta = beta - alpha;
 
-        Depth r = reduction(improving, depth, moveCount, delta);
+        Depth r = reduction(impDiff > xx7, depth, moveCount, delta);
 
         // Increase reduction for ttPv nodes (*Scaler)
         // Smaller or even negative value is better for short time controls
@@ -1054,7 +1058,7 @@ moves_loop:  // When in check, search starts here
         if (!rootNode && pos.non_pawn_material(us) && !is_loss(bestValue))
         {
             // Skip quiet moves if movecount exceeds our FutilityMoveCount threshold
-            if (moveCount >= futility_move_count(improving, depth))
+            if (moveCount >= futility_move_count(impDiff > xx8, depth))
                 mp.skip_quiet_moves();
 
             // Reduced depth of the next LMR search
