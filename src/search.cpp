@@ -81,7 +81,7 @@ Value futility_margin(Depth d,
     Value improvingDeduction = improving * futilityMult * 2;
     Value worseningDeduction = oppWorsening * futilityMult / 3;
     Value statScoreAddition  = statScore / 335;
-    Value correctionAddition = correctionValue / 149902;
+    Value correctionAddition = correctionValue / (correctionValue > 0 ? 139902 : -149902);;
 
     return futilityMult * d - improvingDeduction - worseningDeduction + statScoreAddition
          + correctionAddition;
@@ -867,7 +867,7 @@ Value Search::Worker::search(
     if (!ss->ttPv && depth < 14
         && eval
                - futility_margin(depth, cutNode && !ss->ttHit, improving, opponentWorsening,
-                                 (ss - 1)->statScore, std::abs(correctionValue))
+                                 (ss - 1)->statScore, correctionValue)
              >= beta
         && eval >= beta && (!ttData.move || ttCapture) && !is_loss(beta) && !is_win(eval))
         return beta + (eval - beta) / 3;
