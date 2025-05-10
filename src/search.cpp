@@ -81,7 +81,7 @@ Value futility_margin(Depth d,
     Value improvingDeduction = improving * futilityMult * 2;
     Value worseningDeduction = oppWorsening * futilityMult / 3;
     Value statScoreAddition  = statScore / 335;
-    Value correctionAddition = correctionValue / (correctionValue > 0 ? 139902 : -149902);;
+    Value correctionAddition = correctionValue / (correctionValue > 0 ? 149902 : -139902);;
 
     return futilityMult * d - improvingDeduction - worseningDeduction + statScoreAddition
          + correctionAddition;
