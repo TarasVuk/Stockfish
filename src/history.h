@@ -34,6 +34,7 @@
 namespace Stockfish {
 
 constexpr int PAWN_HISTORY_SIZE        = 8192;   // has to be a power of 2
+constexpr int MINOR_HISTORY_SIZE       = 8192;   // has to be a power of 2
 constexpr int CORRECTION_HISTORY_SIZE  = 32768;  // has to be a power of 2
 constexpr int CORRECTION_HISTORY_LIMIT = 1024;
 constexpr int LOW_PLY_HISTORY_SIZE     = 5;
@@ -50,6 +51,10 @@ inline int pawn_history_index(const Position& pos) {
 
 inline int pawn_correction_history_index(const Position& pos) {
     return pos.pawn_key() & (CORRECTION_HISTORY_SIZE - 1);
+}
+
+inline int minor_history_index(const Position& pos) {
+    return pos.minor_piece_key() & (MINOR_HISTORY_SIZE - 1);
 }
 
 inline int minor_piece_index(const Position& pos) {
@@ -122,6 +127,8 @@ using ContinuationHistory = MultiArray<PieceToHistory, PIECE_NB, SQUARE_NB>;
 
 // PawnHistory is addressed by the pawn structure and a move's [piece][to]
 using PawnHistory = Stats<std::int16_t, 8192, PAWN_HISTORY_SIZE, PIECE_NB, SQUARE_NB>;
+
+using MinorHistory = Stats<std::int16_t, 8192, MINOR_HISTORY_SIZE, PIECE_NB, SQUARE_NB>;
 
 // Correction histories record differences between the static evaluation of
 // positions and their search score. It is used to improve the static evaluation
