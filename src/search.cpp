@@ -899,7 +899,10 @@ Value Search::Worker::search(
         Depth R = 7 + depth / 3;
         do_null_move(pos, st, ss);
 
-        Value nullValue = -search<NonPV>(pos, ss + 1, -beta, -beta + 1, depth - R, false);
+        Value nullValue = -qsearch<NonPV>(pos, ss + 1, -beta, -beta + 1);
+
+        if (nullValue >= beta && depth - R > 0)
+            nullValue = -search<NonPV>(pos, ss + 1, -beta, -beta + 1, depth - R, false);
 
         undo_null_move(pos);
 
