@@ -1145,10 +1145,9 @@ moves_loop:  // When in check, search starts here
                 int tripleMargin = 73 + 324 * PvNode - 229 * !ttCapture + 87 * ss->ttPv - corrValAdj
                                  - (ss->ply > rootDepth) * 50;
 
-                extension =
-                  1 + (value < singularBeta - doubleMargin) + (value < singularBeta - tripleMargin);
+                extension = 1 + (value < singularBeta - doubleMargin);
 
-                depth++;
+                depth += 1 + (value < singularBeta - tripleMargin);
             }
 
             // Multi-cut pruning
