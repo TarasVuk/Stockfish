@@ -1904,7 +1904,7 @@ void update_continuation_histories(Stack* ss, Piece pc, Square to, int bonus) {
         if (((ss - i)->currentMove).is_ok())
         {
             auto& historyEntry = (*(ss - i)->continuationHistory)[pc][to];
-            if (historyEntry > 0)
+            if (historyEntry * bonus > 0)
                 positiveCount++;
 
             int multiplier = CMHCMultipliers[positiveCount];
